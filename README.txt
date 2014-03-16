@@ -1,0 +1,222 @@
+=======
+PyMonad
+=======
+
+PyMonad is a small library 
+implementing monads and related data abstractions
+-- functors, applicative functors --
+for use in implementing functional style programs
+similar to the Haskell programming language.
+
+Features
+========
+
+* Easily define curried functions with the ``@curry`` decorator.
+* Straight-forward partial application: just pass a curried function the number of arguments you want.
+* Composition of curried functions using ``*``.
+* Functor, Applicative Functor, and Monad operators: ``*``, ``&``, and ``>>``
+* Four basic monad types (more on the way!)
+	1. Maybe - for when a calculation might fail
+	2. Either - similar to Maybe but with additional error reporting
+	3. List - For non-deterministic calculations
+	4. Reader - For sequencing calculations which all access the same data.
+
+Usage
+=====
+
+For a more detailed discussion of all PyMonad features,
+including example code,
+see the `documentation <>`_.
+
+Imports
+-------
+
+Import the entire package::
+	
+	from pymonad import *
+
+Or just a single monad type::
+
+	from pymonad.Maybe import *
+
+If you're not importing everything
+but want to use curried functions::
+
+	from pymonad.Reader import curry
+
+Curried Functions and Partial Application
+-----------------------------------------
+
+To define a curried function
+use the ``@curry`` decorator::
+
+	@curry
+	def add(x, y):
+		return x + y
+
+	@curry
+	def func(x, y, z):
+		# Do something with x, y and z.
+		...
+
+	# You can also make curried function from existing python functions.
+	existingFunction = curry(existingFunction) 
+
+	# But it won't work on python built-ins
+	map = curry(map)		# This won't work!
+
+To partially apply a curried function,
+pass it less than it's full set of arguments::
+
+	add(7, 8)			# Calling add normally returns 15 as expected.
+	add7 = add(7)		# Partial application: 'add7' is a function taking one argument.
+
+	# 'func' can be applied in any of the following ways.
+	func(1, 2, 3)		# Call func normally.
+	func(1, 2)(3)		# Partially applying two, then applying the last argument.
+	func(1)(2, 3)		# Partially applying one, then applying the last two arguments.
+	func(1)(2)(3)		# Partially applying one, partially applying again, then applying the last argument.
+
+Function Composition
+--------------------
+
+Curried functions can be composed with the ``*`` operator.
+Functions are applied from right to left::
+	
+	@curry
+	def head(aList): 
+		return aList[0]
+
+	@curry 
+	def tail(aList): 
+		return aList[1:]
+
+	second = head * tail
+	second([1, 2, 3, 4])		# returns 2
+
+You can also compose partially applied functions::
+
+	@curry
+	def add(x, y): 
+		return x + y
+
+	@curry
+	def mul(x, y): 
+		return x * y
+
+	comp = add(7) * mul(2)
+	comp(4)						# returns 15
+
+Functors, Applicative Functors, and Monads
+------------------------------------------
+
+All Monads are also Applicative Functors,
+and all Applicative Functors are also Functors,
+though the same is not necessarily true in reverse.
+All the types included with PyMonad
+are defined as all three
+but you can define new types however you want.
+
+Functors
+--------
+
+All functors define the ``fmap`` method
+which can be invoked via the fmap operator ``*``.
+``fmap`` takes functions which operate on simple types
+-- integers, strings, etc. --
+and allows them to operate of functor types::
+	
+	from pymonad.Maybe import *
+	from pymonad.List import *
+
+	# 'neg' knows nothing about functor types...
+	def neg(x):
+		return -x
+
+	# ... but that doesn't stop us from using it anyway.
+	neg * Just(9)				# returns Just(-9)
+	neg * Nothing				# returns Nothing
+	neg * List(1, 2, 3, 4)		# returns List(-1, -2, -3, -4)
+
+Notice that the function is on the left
+and the functor type is on the right.
+If you think of ``*`` as a sort of fancy opening paren,
+then normal calls and ``fmap`` calls have basically the same structure::
+
+	------------------------------------------------------------------
+					function		open		argument		close
+	Normal call		  neg			 (			   9			  )
+	fmap call	 	  neg			 *			 Just(9)
+	------------------------------------------------------------------
+
+
+Also notice that ``*`` is also the function composition operator.
+In fact,
+curried functions are instances of the ``Reader`` monad,
+and ``fmap``ing a function over another function
+is the same thing as function composition.
+
+Applicative Functors
+--------------------
+
+Functors allow you to use normal functions of a single argument
+-- like ``neg`` above --
+with functor types.
+Applicative Functors extend that capability
+-- via ``amap`` and its operator ``&`` --
+allowing you to use normal functions of multiple arguments
+with functor types::
+
+	def add(x, y):
+		return x + y
+
+	# Note that we're still using '*' but now in conjunction with '&'
+	add * Just(7) & Just(8)					# returns Just(15)
+	add * Nothing & Just(8)					# returns Nothing
+	add * Just(7) & Nothing					# returns Nothing
+	add * List(1, 2, 3) & List(4, 5, 6)		# returns List(5, 6, 7, 6, 7, 8, 7, 8, 9)
+
+If ``*`` is a fancy paren,
+``&`` is the fancy comma
+used to separate arguments.
+
+Monads
+------
+
+Monads allow you to sequence a series of calculations
+within than monad
+using the ``bind`` operator ``>>``.
+Continuing with the "fancy punctuation" metaphor,
+``>>`` is like a fancy semi-colon 
+(in languages that use semi-colons anyway...)
+
+The first argument to ``>>`` is a monad type.
+The second argument is a function
+which takes a single,
+non-monad argument
+and returns an instance of the same monad::
+
+	from pymonad.List import *
+	from pymonad.Reader import curry
+
+	def positive_and_negative(x):
+		return List(x, -x)
+
+	# You can call 'positive_and_negative' normally.
+	positive_and_negative(9)		# returns List(9, -9)
+
+	# Or you can create a List...
+	x = List(9)
+
+	# ... and then use '>>' to apply positive_and_negative'
+	x >> positive_and_negative		# also returns List(9, -9)
+
+	# And of course you can sequence partially applied functions.
+	@curry
+	def add_and_sub(x, y):
+		return List(y + x, y - x)
+
+	List(2) >> positive_and_negative >> add_and_sub(3)		# creates List(2)
+															# applies positive_and_negative: List(2, -2)
+															# then add_and_sub(3): List(5, -1, 1, -5)
+															# final result: List(5, -1, 1, -5)
