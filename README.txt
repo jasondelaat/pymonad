@@ -5,8 +5,14 @@ PyMonad
 PyMonad is a small library 
 implementing monads and related data abstractions
 -- functors, applicative functors --
-for use in implementing functional style programs
-similar to the Haskell programming language.
+for use in implementing functional style programs.
+For those familiar with monads in Haskell,
+PyMonad aims to implement many of the features you're used to
+so you can use monads in python quickly and easily.
+For those who have never used monads but are interested,
+PyMonad is an easy way to learn about them in, perhaps, 
+a slightly more forgiving environment
+without needing to learn Haskell.
 
 Features
 ========
@@ -15,18 +21,22 @@ Features
 * Straight-forward partial application: just pass a curried function the number of arguments you want.
 * Composition of curried functions using ``*``.
 * Functor, Applicative Functor, and Monad operators: ``*``, ``&``, and ``>>``
-* Four basic monad types (more on the way!)
+* Four basic monad types (with more come)
 	1. Maybe - for when a calculation might fail
 	2. Either - similar to Maybe but with additional error reporting
 	3. List - For non-deterministic calculations
 	4. Reader - For sequencing calculations which all access the same data.
 
-Usage
-=====
+Getting Started
+===============
 
-For a more detailed discussion of all PyMonad features,
-including example code,
-see the `documentation <>`_.
+More detailed documentation is in the works
+and will eventually be available at <>`_.
+For now it's simply a copy of this page
+but updates will be made periodically,
+time permitting.
+Comments and suggestions welcome at
+jason.develops@gmail.com
 
 Imports
 -------
@@ -91,7 +101,7 @@ Functions are applied from right to left::
 	def tail(aList): 
 		return aList[1:]
 
-	second = head * tail
+	second = head * tail		# 'tail' will be applied first, then its result passed to 'head'
 	second([1, 2, 3, 4])		# returns 2
 
 You can also compose partially applied functions::
@@ -104,7 +114,7 @@ You can also compose partially applied functions::
 	def mul(x, y): 
 		return x * y
 
-	comp = add(7) * mul(2)
+	comp = add(7) * mul(2)		# 'mul(2)' is evaluated first, and it's result passed to 'add(7)'
 	comp(4)						# returns 15
 
 Functors, Applicative Functors, and Monads
@@ -220,3 +230,23 @@ and returns an instance of the same monad::
 															# applies positive_and_negative: List(2, -2)
 															# then add_and_sub(3): List(5, -1, 1, -5)
 															# final result: List(5, -1, 1, -5)
+
+Variable assignment in monadic code
+-----------------------------------
+
+The second argument to ``>>`` is a function 
+which takes a single, non-monad argument.
+Because of that, 
+you can use ``lambda`` to assign values to varialbe 
+withing monadic code,
+like this::
+	
+	from pymonad.Maybe import *
+
+	Just(9) >> (lambda x: 				# Here, 'x' takes the value '9'
+	Just(8) >> (lambda y:				# And 'y' takes the value '8'
+	Just(x + y)))						# The final returned value is 'Just(x + y)', or 'Just(17)'
+
+You can also simply ignore values if you wish::
+
+	Just(9) >> Just(8)					# The '9' is thrown away and the result of this computation is 'Just(8)'
