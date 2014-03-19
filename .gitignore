@@ -1,2 +1,4 @@
 *__pycache__*
 *.sw*
+build
+install-env
