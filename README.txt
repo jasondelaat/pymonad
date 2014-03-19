@@ -68,17 +68,13 @@ use the ``@curry`` decorator::
 		# Do something with x, y and z.
 		...
 
-	# You can also make curried function from existing python functions.
-	existingFunction = curry(existingFunction) 
+The above fuctions can be partially applied 
+by passing them less than their full set of arguments::
 
-	# But it won't work on python built-ins
-	map = curry(map)		# This won't work!
-
-To partially apply a curried function,
-pass it less than it's full set of arguments::
-
-	add(7, 8)			# Calling add normally returns 15 as expected.
+	add(7, 8)			# Calling 'add' normally returns 15 as expected.
 	add7 = add(7)		# Partial application: 'add7' is a function taking one argument.
+	add7(8)				# Applying the final argument retruns 15...
+	add7(400)			# ... or 407, or whatever.
 
 	# 'func' can be applied in any of the following ways.
 	func(1, 2, 3)		# Call func normally.
@@ -92,10 +88,12 @@ Function Composition
 Curried functions can be composed with the ``*`` operator.
 Functions are applied from right to left::
 	
+	# Returns the first element of a list.
 	@curry
 	def head(aList): 
 		return aList[0]
 
+	# Returns everything except the first element of the list.
 	@curry 
 	def tail(aList): 
 		return aList[1:]
@@ -115,6 +113,10 @@ You can also compose partially applied functions::
 
 	comp = add(7) * mul(2)		# 'mul(2)' is evaluated first, and it's result passed to 'add(7)'
 	comp(4)						# returns 15
+
+	# Composition order matters!
+	comp = mul(2) * add(7)
+	comp(4)						# returns 22
 
 Functors, Applicative Functors, and Monads
 ------------------------------------------
@@ -159,7 +161,7 @@ then normal calls and ``fmap`` calls have basically the same structure::
 	------------------------------------------------------------------
 
 
-Also notice that ``*`` is also the function composition operator.
+Notice that ``*`` is also the function composition operator.
 In fact,
 curried functions are instances of the ``Reader`` monad,
 and ``fmap``ing a function over another function
@@ -176,9 +178,11 @@ Applicative Functors extend that capability
 allowing you to use normal functions of multiple arguments
 with functor types::
 
+	# 'add' operates on simple types, not functors or applicatives...
 	def add(x, y):
 		return x + y
 
+	# ... but we're going to use it on those types anyway.
 	# Note that we're still using '*' but now in conjunction with '&'
 	add * Just(7) & Just(8)					# returns Just(15)
 	add * Nothing & Just(8)					# returns Nothing
@@ -195,9 +199,6 @@ Monads
 Monads allow you to sequence a series of calculations
 within than monad
 using the ``bind`` operator ``>>``.
-Continuing with the "fancy punctuation" metaphor,
-``>>`` is like a fancy semi-colon 
-(in languages that use semi-colons anyway...)
 
 The first argument to ``>>`` is a monad type.
 The second argument is a function
@@ -208,6 +209,7 @@ and returns an instance of the same monad::
 	from pymonad.List import *
 	from pymonad.Reader import curry
 
+	# Takes a simple number type and returns a 'List' containing that value and it's negative.
 	def positive_and_negative(x):
 		return List(x, -x)
 
@@ -219,6 +221,10 @@ and returns an instance of the same monad::
 
 	# ... and then use '>>' to apply positive_and_negative'
 	x >> positive_and_negative		# also returns List(9, -9)
+
+	# But 'x' could also have more than one value...
+	x = List(1, 2)
+	x >> positive_and_negative		# returns List(1, -1, 2, -2)
 
 	# And of course you can sequence partially applied functions.
 	@curry
@@ -236,7 +242,7 @@ Variable assignment in monadic code
 The second argument to ``>>`` is a function 
 which takes a single, non-monad argument.
 Because of that, 
-you can use ``lambda`` to assign values to varialbe 
+you can use ``lambda`` to assign values to a variable
 withing monadic code,
 like this::
 	
@@ -244,8 +250,52 @@ like this::
 
 	Just(9) >> (lambda x: 				# Here, 'x' takes the value '9'
 	Just(8) >> (lambda y:				# And 'y' takes the value '8'
-	Just(x + y)))						# The final returned value is 'Just(x + y)', or 'Just(17)'
+	Just(x + y)))						# The final returned value is 'Just(9 + 8)', or 'Just(17)'
 
 You can also simply ignore values if you wish::
 
 	Just(9) >> Just(8)					# The '9' is thrown away and the result of this computation is 'Just(8)'
+
+Implementing Monads
+-------------------
+
+Implementing other functors, applicatives, or monads is fairly straight-forward.
+There are three classes, 
+serving as interfaces::
+
+	Monad --> Applicative --> Functor
+
+To implement a new functor,
+create a new class which derives from ``Functor``
+and override the ``fmap`` method.
+
+To implement a new applicative functor,
+create a new class which derives from ``Applicative``
+and override the ``amap`` and ``fmap`` methods.
+
+To implement a new monad,
+create a new class which derives from ``Monad``
+and override at least the ``bind`` method, 
+and preferably the ``amap`` and ``fmap`` methods as well.
+
+The operators, ``*``, ``&``, and ``>>``
+are pre-defined to call the above methods
+so you shouldn't need to touch them directly.
+
+Isn't there something missing?
+------------------------------
+
+If you're familiar with monads from Haskell,
+you'll notice that the ``unit`` function
+-- called ``return`` in Haskell --
+isn't included.
+In Haskell,
+``return`` is polymorphic on the return type
+but we can't implement polymorphism on return types in Python,
+so there's no general way to write a ``unit`` function
+as far as I know.
+You can get around this in a few of ways:
+
+1. Write a separate function which implements the ``unit`` functionality, or
+2. Implement ``unit`` functionality directly in the class' ``__init__`` method, or
+3. Define a static method on the class which implements ``unit`` functionality.
