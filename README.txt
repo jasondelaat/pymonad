@@ -30,8 +30,7 @@ Features
 Getting Started
 ===============
 
-More detailed documentation is in the works
-and will eventually be available at <>`_.
+More detailed `documentation<>`_ is in the works.
 For now it's simply a copy of this page
 but updates will be made periodically,
 time permitting.
