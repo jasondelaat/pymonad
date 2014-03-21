@@ -25,5 +25,10 @@ class Monad(Applicative):
 			monadValue.bind(someFunction)
 
 		"""
-		if callable(function): return self.bind(function)
-		return self.bind(lambda _: function)
+		if callable(function): 
+			result = self.bind(function)
+			if not isinstance(result, Monad): raise TypeError("Operator '>>' must return a Monad instance.")
+			return result
+		else:
+			if not isinstance(function, Monad): raise TypeError("Operator '>>' must return a Monad instance.")
+			return self.bind(lambda _: function)

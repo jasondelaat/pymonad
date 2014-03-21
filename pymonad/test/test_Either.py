@@ -66,6 +66,10 @@ class EitherTests(unittest.TestCase):
 		self.assertEqual(Right(7) >> m_neg >> add(7), Right(0))
 		self.assertEqual(Right("hello") >> m_neg, Left("error"))
 		self.assertEqual(Left("Short-circuit") >> add(7) >> m_neg >> add(6) >> div(2) >> div(0), Left("Short-circuit"))
+	
+	def testBindReturnsMonad(self):
+		self.assertRaises(TypeError, Right(7).__rshift__, lambda x: 9)
+		self.assertRaises(TypeError, Right(7).__rshift__, 9)
 
 if __name__ == "__main__":
 	unittest.main()
