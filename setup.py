@@ -10,4 +10,12 @@ setup(
     license=open('LICENSE.txt').read(),
     description='Collection of classes and interfaces for programming with monads.',
     long_description=open('README.txt').read(),
+	classifiers=[ "Intended Audience :: Developers"
+				, "License :: OSI Approved :: BSD License"
+				, "Operating System :: OS Independent"
+				, "Programming Language :: Python :: 3"
+				, "Topic :: Software Development"
+				, "Topic :: Software Development :: Libraries"
+				, "Topic :: Utilities"
+				],
 )
