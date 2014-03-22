@@ -3,3 +3,5 @@
 *.html
 build
 install-env
+MANIFEST
+dist
