@@ -30,13 +30,28 @@ Features
 Getting Started
 ===============
 
-More detailed `documentation<>`_ is in the works.
-For now it's simply a copy of this page
-but updates will be made periodically,
+More detailed documentation is in the works
+and will be updated periodically,
 time permitting.
+For now this guide should get you started.
 Comments and suggestions welcome at
 jason.develops@gmail.com
 
+Installation
+------------
+
+Using pip::
+
+	pip install PyMonad
+
+Or download the package and run::
+
+	python setup.py install
+
+from the project directory.
+You may have to use ``python3`` rather than ``python``
+if you have more than one verion of Python installed.
+	
 Imports
 -------
 
