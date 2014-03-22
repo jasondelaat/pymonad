@@ -22,10 +22,11 @@ Features
 * Composition of curried functions using ``*``.
 * Functor, Applicative Functor, and Monad operators: ``*``, ``&``, and ``>>``
 * Four basic monad types (with more come)
-	1. Maybe - for when a calculation might fail
-	2. Either - similar to Maybe but with additional error reporting
-	3. List - For non-deterministic calculations
-	4. Reader - For sequencing calculations which all access the same data.
+
+1. Maybe - for when a calculation might fail
+2. Either - similar to Maybe but with additional error reporting
+3. List - For non-deterministic calculations
+4. Reader - For sequencing calculations which all access the same data.
 
 Getting Started
 ===============
@@ -179,7 +180,7 @@ then normal calls and ``fmap`` calls have basically the same structure::
 Notice that ``*`` is also the function composition operator.
 In fact,
 curried functions are instances of the ``Reader`` monad,
-and ``fmap``ing a function over another function
+and ``fmap`` -ing a function over another function
 is the same thing as function composition.
 
 Applicative Functors
