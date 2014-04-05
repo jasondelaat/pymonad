@@ -1,0 +1,2 @@
+V1.0.post1, 2014-04- -- Fixed problems with List, Either and Maybe to make package compatible with Python 2
+V1.0, 2014-03-29 -- Initial Release
