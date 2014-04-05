@@ -34,6 +34,9 @@ class Left(Either):
 		elif (self.getValue() == other.getValue()): return True
 		else: return False
 
+	def __ne__(self, other):
+		return not self.__eq__(other)
+
 	def __str__(self):
 		return "Left: " + str(self.getValue())
 
@@ -68,6 +71,9 @@ class Right(Either):
 		if not isinstance(other, Right): return False
 		elif (self.getValue() == other.getValue()): return True
 		else: return False
+
+	def __ne__(self, other):
+		return not self.__eq__(other)
 
 	def __str__(self):
 		return "Right: " + str(self.getValue())

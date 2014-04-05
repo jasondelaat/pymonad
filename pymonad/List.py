@@ -21,6 +21,10 @@ class List(list, Monad):
 			return True
 		return super(List, self).__ne__(other)
 
+	# For compatibility with python 2...though I thought this was depricated and not necessary.
+	def __getslice__(self, start, end):
+		return self.__getitem__(slice(start, end))
+
 	def __getitem__(self, key):
 		if isinstance(key, slice):
 			return List(*super(List, self).__getitem__(key))
