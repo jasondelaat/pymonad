@@ -39,6 +39,9 @@ class Just(Maybe):
 		elif (self.getValue() == other.getValue()): return True
 		else: return False
 
+	def __ne__(self, other):
+		return not self.__eq__(other)
+
 	def fmap(self, function):
 		""" Applies 'function' to the 'Just' value and returns a new 'Just' value. """
 		return Just(function(self.getValue()))
@@ -71,6 +74,9 @@ class _Nothing(Maybe):
 		super(_Nothing, self).__eq__(other)
 		if isinstance(other, _Nothing): return True
 		else: return False
+
+	def __ne__(self, other):
+		return not self.__eq__(other)
 
 	def fmap(self, _):
 		""" Returns 'Nothing'. """
