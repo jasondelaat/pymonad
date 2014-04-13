@@ -1,3 +1,8 @@
+# --------------------------------------------------------
+# (c) Copyright 2014 by Jason DeLaat. 
+# Licensed under BSD 3-clause licence.
+# --------------------------------------------------------
+
 import unittest
 from pymonad.Reader import curry
 from pymonad.List import *
