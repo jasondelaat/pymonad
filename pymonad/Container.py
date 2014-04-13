@@ -1,3 +1,8 @@
+# --------------------------------------------------------
+# (c) Copyright 2014 by Jason DeLaat. 
+# Licensed under BSD 3-clause licence.
+# --------------------------------------------------------
+
 class Container(object):
 	""" Represents a wrapper around an arbitrary value and a method to access it. """
 
