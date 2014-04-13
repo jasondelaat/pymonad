@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='PyMonad',
-    version='1.0.post1',
+    version='1.1',
     author='Jason DeLaat',
     author_email='jason.develops@gmail.com',
     packages=['pymonad', 'pymonad.test'],
@@ -13,7 +13,7 @@ setup(
 	classifiers=[ "Intended Audience :: Developers"
 				, "License :: OSI Approved :: BSD License"
 				, "Operating System :: OS Independent"
-				, "Programming Language :: Python :: 2"
+				, "Programming Language :: Python :: 2.7"
 				, "Programming Language :: Python :: 3"
 				, "Topic :: Software Development"
 				, "Topic :: Software Development :: Libraries"
