@@ -18,3 +18,6 @@ class Container(object):
 	def getValue(self):
 		""" Returns the value held by the Container. """
 		return self.value
+
+	def __eq__(self, other):
+		return self.value == other.value
