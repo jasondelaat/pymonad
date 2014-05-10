@@ -4,7 +4,7 @@ PyMonad
 
 PyMonad is a small library 
 implementing monads and related data abstractions
--- functors, applicative functors --
+-- functors, applicative functors, and monoids --
 for use in implementing functional style programs.
 For those familiar with monads in Haskell,
 PyMonad aims to implement many of the features you're used to
@@ -21,22 +21,17 @@ Features
 * Straight-forward partial application: just pass a curried function the number of arguments you want.
 * Composition of curried functions using ``*``.
 * Functor, Applicative Functor, and Monad operators: ``*``, ``&``, and ``>>``
-* Four basic monad types (with more come)
+* Five basic monad types
+* Monoids
 
 1. Maybe - for when a calculation might fail
-2. Either - similar to Maybe but with additional error reporting
+2. Either - Similar to Maybe but with additional error reporting
 3. List - For non-deterministic calculations
 4. Reader - For sequencing calculations which all access the same data.
+5. Writer - For keeping logs of program execution.
 
 Getting Started
 ===============
-
-More detailed documentation is in the works
-and will be updated periodically,
-time permitting.
-For now this guide should get you started.
-Comments and suggestions welcome at
-jason.develops@gmail.com
 
 Installation
 ------------
@@ -50,8 +45,6 @@ Or download the package and run::
 	python setup.py install
 
 from the project directory.
-You may have to use ``python3`` rather than ``python``
-if you have more than one verion of Python installed.
 	
 Imports
 -------
