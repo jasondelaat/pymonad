@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='PyMonad',
-    version='1.1',
+    version='1.2',
     author='Jason DeLaat',
     author_email='jason.develops@gmail.com',
     packages=['pymonad', 'pymonad.test'],
