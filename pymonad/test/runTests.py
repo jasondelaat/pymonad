@@ -10,5 +10,6 @@ from test_Maybe import *
 from test_Either import *
 from test_List import *
 from test_Monoid import *
+from test_Writer import *
 
 unittest.main()
