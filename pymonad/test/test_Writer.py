@@ -47,5 +47,11 @@ class TestWriterMonad(unittest.TestCase, MonadTester):
 		self.ensure_second_monad_law_holds()
 		self.ensure_third_monad_law_holds()
 
+class TestWriterAlternateConstructorForm(unittest.TestCase, MonadTester):
+	def testConstructors(self):
+		firstConstructorForm = Writer(("value", "logMessage"))
+		secondConstructorForm = Writer("value", "logMessage")
+		self.assertEqual(firstConstructorForm, secondConstructorForm)
+
 if __name__ == "__main__":
 	unittest.main()

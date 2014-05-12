@@ -7,6 +7,12 @@ from pymonad.Monad import *
 from pymonad.Monoid import *
 
 class Writer(Monad): 
+	def __init__(self, value, logMessage=None):
+		if not logMessage:
+			super(Writer, self).__init__(value)
+		else:
+			super(Writer, self).__init__((value, logMessage))
+
 	def __str__(self):
 		return str(self.value)
 
