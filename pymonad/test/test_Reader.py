@@ -53,5 +53,10 @@ class ReaderTests(unittest.TestCase):
 			)
 		self.assertEqual(x(3), 19)
 
+class TestReaderUnit(unittest.TestCase):
+	def testUnitOnReader(self):
+		self.assertEqual(Reader.unit(8)("dummy value not used"), 8)
+		self.assertEqual(unit(Reader, 8)("dummy value not used"), 8)
+
 if __name__ == "__main__":
 	unittest.main()

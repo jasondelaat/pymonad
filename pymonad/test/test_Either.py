@@ -4,7 +4,7 @@
 # --------------------------------------------------------
 
 import unittest
-from pymonad.Reader import *
+from pymonad.Reader import curry
 from pymonad.Either import *
 
 def neg(x): return -x
@@ -75,6 +75,18 @@ class EitherTests(unittest.TestCase):
 	def testBindReturnsMonad(self):
 		self.assertRaises(TypeError, Right(7).__rshift__, lambda x: 9)
 		self.assertRaises(TypeError, Right(7).__rshift__, 9)
+
+class TestEitherUnit(unittest.TestCase):
+	def testUnitOnEither(self):
+		self.assertEqual(Either.unit(8), Right(8))
+		self.assertEqual(unit(Either, 8), Right(8))
+
+	def testUnitOnRight(self):
+		self.assertEqual(Right.unit(8), Right(8))
+		self.assertEqual(unit(Right, 8), Right(8))
+
+	def testUnitOnLeft(self):
+		self.assertEqual(unit(Left, 8), Right(8))
 
 if __name__ == "__main__":
 	unittest.main()
