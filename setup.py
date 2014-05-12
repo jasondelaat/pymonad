@@ -9,7 +9,7 @@ setup(
     url='http://pypi.python.org/pypi/PyMonad',
     license=open('LICENSE.txt').read(),
     description='Collection of classes for programming with functors, applicative functors and monads.',
-    long_description=open('README.txt').read(),
+    long_description=open('README.txt').read() + open("CHANGES.txt").read(),
 	classifiers=[ "Intended Audience :: Developers"
 				, "License :: OSI Approved :: BSD License"
 				, "Operating System :: OS Independent"
