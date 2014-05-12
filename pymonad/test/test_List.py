@@ -52,5 +52,10 @@ class ListTests(unittest.TestCase):
 		self.assertEqual(neg * (List(1) >> plusMinusSame), List(-2, 0, -1))
 		self.assertEqual(neg * List(1) >> plusMinusSame, List(0, -2, -1))
 
+class TestListUnit(unittest.TestCase):
+	def testUnitOnList(self):
+		self.assertEqual(List.unit(8), List(8))
+		self.assertEqual(unit(List, 8), List(8))
+
 if __name__ == "__main__":
 	unittest.main()

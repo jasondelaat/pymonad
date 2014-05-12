@@ -84,6 +84,10 @@ class Reader(Monad):
 		""" Threads a single value through multiple function calls. """
 		return Reader(lambda x: function(self.getValue()(x))(x))
 
+	@classmethod
+	def unit(cls, value):
+		return Reader(lambda _: value)
+
 def curry(aFunction):
 	""" 
 	Turns a normal python function into a curried function.

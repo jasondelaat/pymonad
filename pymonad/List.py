@@ -41,6 +41,10 @@ class List(list, Monad):
 			display += str(item) + ", "
 		return display[:-2]+ "]"
 
+	@classmethod
+	def unit(cls, value):
+		return List(value)
+
 	def getValue(self): 
 		""" 
 		Returns the list.

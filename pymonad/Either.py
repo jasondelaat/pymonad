@@ -20,6 +20,10 @@ class Either(Monad):
 	def __eq__(self, other):
 		if not isinstance(other, Either): raise TypeError("Can't compare different types.")
 
+	@classmethod
+	def unit(cls, value):
+		return Right(value)
+
 class Left(Either):
 	""" 
 	Represents a calculation which has failed and contains an error code or message. 

@@ -78,5 +78,18 @@ class MaybeTests(unittest.TestCase):
 		self.assertEqual(Just(7) >> Just(7), Just(7))
 		self.assertEqual(Just(7) >> (lambda x: Just(x)), Just(7))
 
+class TestMaybeUnit(unittest.TestCase):
+	def testUnitOnMaybe(self):
+		self.assertEqual(Maybe.unit(8), Just(8))
+		self.assertEqual(unit(Maybe, 8), Just(8))
+
+	def testUnitOnJust(self):
+		self.assertEqual(Just.unit(8), Just(8))
+		self.assertEqual(unit(Just, 8), Just(8))
+
+	def testUnitOnNothing(self):
+		self.assertEqual(Nothing.unit(8), Just(8))
+		self.assertEqual(unit(Nothing, 8), Just(8))
+
 if __name__ == "__main__":
 	unittest.main()

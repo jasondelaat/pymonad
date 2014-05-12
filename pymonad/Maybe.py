@@ -24,6 +24,10 @@ class Maybe(Monad):
 	def __eq__(self, other):
 		if not isinstance(other, Maybe): raise TypeError("Can't compare two different types.")
 
+	@classmethod
+	def unit(cls, value):
+		return Just(value)
+
 class Just(Maybe):
 	""" The 'Maybe' type used to represent a calculation that has succeeded. """
 
