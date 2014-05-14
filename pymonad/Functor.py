@@ -27,3 +27,11 @@ class Functor(Container):
 		"""
 		
 		return self.fmap(aFunction)
+
+	# todo: docstrings for 'unit'
+	@classmethod
+	def unit(cls, value):
+		raise NotImplementedError
+
+def unit(aClass, value):
+	return aClass.unit(value)
