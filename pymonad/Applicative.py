@@ -27,10 +27,3 @@ class Applicative(Functor):
 	def __and__(self, functorValue):
 		""" The 'amap' operator. """
 		return self.amap(functorValue)
-
-	@classmethod
-	def unit(cls, value):
-		raise NotImplementedError
-
-def unit(aClass, value):
-	return aClass.unit(value)
