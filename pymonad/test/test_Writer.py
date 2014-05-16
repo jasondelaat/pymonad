@@ -6,6 +6,7 @@
 import unittest
 from pymonad.Writer import *
 from MonadTester import *
+from pymonad.Maybe import Just
 
 class TestWriterFunctor(unittest.TestCase, MonadTester):
 	def __init__(self, x):
@@ -52,6 +53,31 @@ class TestWriterAlternateConstructorForm(unittest.TestCase, MonadTester):
 		firstConstructorForm = Writer(("value", "logMessage"))
 		secondConstructorForm = Writer("value", "logMessage")
 		self.assertEqual(firstConstructorForm, secondConstructorForm)
+
+class TestWriterEquality(unittest.TestCase, MonadTester):
+	def testEqualityOfIdenticalTypes(self):
+		self.givenMonads(StringWriter(8, "log message"), StringWriter(8, "log message"))
+		self.ensureMonadsAreEqual()
+
+	def testEqualityWithBaseType(self):
+		self.givenMonads(StringWriter(8, "log message"), Writer(8, "log message"))
+		self.ensureMonadsAreEqual()
+
+	def testInequalityOfIdenticalTypesWithDifferentLog(self):
+		self.givenMonads(StringWriter(8, "log message"), StringWriter(8, "different message"))
+		self.ensureMonadsAreNotEqual()
+
+	def testInequalityOfIdenticalTypesWithDifferentResult(self):
+		self.givenMonads(StringWriter(8, "log message"), StringWriter(9, "log message"))
+		self.ensureMonadsAreNotEqual()
+
+	def testInequalityOfDifferentTypes(self):
+		self.givenMonads(StringWriter(8, "log message"), NumberWriter(8, 10))
+		self.ensureMonadsAreNotEqual()
+
+	def testMonadComparisonException(self):
+		self.givenMonads(StringWriter(8, "log message"), Just(8))
+		self.ensureComparisonRaisesException()
 
 if __name__ == "__main__":
 	unittest.main()
