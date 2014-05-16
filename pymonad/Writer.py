@@ -5,6 +5,7 @@
 
 from pymonad.Monad import *
 from pymonad.Monoid import *
+from pymonad.MonadExceptions import *
 
 class Writer(Monad): 
 	"""
@@ -94,6 +95,12 @@ class Writer(Monad):
 
 		"""
 		return self.value[1]
+
+	def __eq__(self, other):
+		if not isinstance(other, Writer): 
+			raise TypeError("Can't compare two different types.")
+		else:
+			return super(Writer, self).__eq__(other)
 
 class NumberWriter(Writer):
 	""" A Writer monad type which uses numbers, either integers or floats, as the log type. """

@@ -5,6 +5,7 @@
 # This file contains helper classes and functions to make monad tests more readable and maintainable.
 # -----------------------------------------------------------------------------------------------------
 from pymonad.Reader import *
+from pymonad.MonadExceptions import *
 
 def identity(value):
 	return value
@@ -32,6 +33,18 @@ class FunctorTester(object):
 
 	def given(self, value):
 		self.monad = self.classUnderTest(value)
+
+	def givenMonads(self, first, second):
+		self.monads = [first, second]
+
+	def ensureMonadsAreEqual(self):
+		self.assertEqual(self.monads[0], self.monads[1])
+
+	def ensureMonadsAreNotEqual(self):
+		self.assertNotEqual(self.monads[0], self.monads[1])
+
+	def ensureComparisonRaisesException(self):
+		self.assertRaises(TypeError, self.monads[0].__eq__, self.monads[1])
 
 	def ensure_first_functor_law_holds(self): 
 		fmap_ID = self.monad.fmap(identity)
