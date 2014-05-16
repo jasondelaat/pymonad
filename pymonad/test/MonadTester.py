@@ -5,7 +5,6 @@
 # This file contains helper classes and functions to make monad tests more readable and maintainable.
 # -----------------------------------------------------------------------------------------------------
 from pymonad.Reader import *
-from pymonad.MonadExceptions import *
 
 def identity(value):
 	return value

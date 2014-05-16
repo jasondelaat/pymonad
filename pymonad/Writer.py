@@ -5,7 +5,6 @@
 
 from pymonad.Monad import *
 from pymonad.Monoid import *
-from pymonad.MonadExceptions import *
 
 class Writer(Monad): 
 	"""
