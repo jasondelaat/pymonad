@@ -137,6 +137,11 @@ All the types included with PyMonad
 are defined as all three
 but you can define new types however you want.
 
+All of these types ultimately derive from ``Container``
+which simply holds a value and provides some basic value equality checking.
+The method ``getValue()`` will allow you to "extract" the value 
+of monadic computations if/when necessary.
+
 Functors
 --------
 
@@ -291,20 +296,174 @@ The operators, ``*``, ``&``, and ``>>``
 are pre-defined to call the above methods
 so you shouldn't need to touch them directly.
 
-Isn't there something missing?
-------------------------------
+unit (aka return)
+-----------------
 
-If you're familiar with monads from Haskell,
-you'll notice that the ``unit`` function
--- called ``return`` in Haskell --
-isn't included.
-In Haskell,
-``return`` is polymorphic on the return type
-but we can't implement polymorphism on return types in Python,
-so there's no general way to write a ``unit`` function
-as far as I know.
-You can get around this in a few of ways:
+The previous version of pymonad
+didn't include the method ``unit``
+(called ``return`` in Haskell).
+``unit`` takes a bare value,
+such as ``8``,
+and places it in a default context for that monad.
+Haskell allows polymorphism on return types 
+as well as supporting type inference,
+so you (mostly) don't have to tell ``return`` what types to expect,
+it just figures it out.
+We can't do that in Python,
+so you *always* need to tell ``unit`` what type you're expecting.
 
-1. Write a separate function which implements the ``unit`` functionality, or
-2. Implement ``unit`` functionality directly in the class' ``__init__`` method, or
-3. Define a static method on the class which implements ``unit`` functionality.
+The ``unit`` method is implemented as a class method
+in Functor.py, so it can be used with any functor, applicative or monad.
+There is also a ``unit`` *function* which expects a functor type
+(though you can also give it an instance) 
+and a value
+and invokes the corresponding ``unit`` method.
+It is provided to give a more "functional look" to code,
+but use whichever method you prefer.
+With the Maybe monad for example:
+
+1. Maybe.unit(8)		# returns Just(8)
+2. unit(Maybe, 8)		# also returns Just(8)
+
+In either case all functors (and applicatives and monads) should implement the ``unit`` class method.
+
+Monoids
+=======
+
+Monoids are a data type 
+which consists of some operation for combining values of that type,
+and an identity value for that operation.
+The operation is called ``mplus`` 
+and the identity value is callled ``mzero``.
+Despite the names,
+they are not necessarily addition and zero.
+They *can* be addition and zero though,
+numbers are sort of the typical monoid.
+
+In the case of numbers,
+zero is the identity element and addition is the operation.
+Monoids adhere to the following laws:
+
+1. Left and right identity: x + 0 = 0 + x = x	 
+2. Associativity: (x + y) + z = x + (y + z) = x + y + z 	
+
+Stings are also monoids with the identity element ``mzero`` equal to the empty string,
+and the operation ``mplus`` concatenation.
+
+Creating New Monoids
+--------------------
+
+To create a new monoids type
+create a class deriving from ``Monoid``
+and override the ``mzero`` static method
+which takes no arguments and should return an instance of the class
+containing the identity value for the monoid.
+Also override the ``mplus`` method.
+For instance,
+numbers can be a monoid in two ways,
+one way with zero and addition as discussed above
+and the other way with one and multiplication.
+We could implement that like this::
+
+	class ProductMonoid(Monoid):
+		@staticmethod
+		def mzero():
+			return ProductMonoid(1)
+
+		def mplus(self, other):
+			return ProductMonoid(self.getValue() * other.getValue())
+
+The ``+`` operator (aka __add__()) is defined to call ``mplus`` on monoid instances,
+so you can simply "add" monoid values together rather than having to call ``mplus`` directly.
+
+"Natural" Monoids
+-----------------
+
+Similar to ``unit`` for monads,
+there is an ``mzero`` function
+which expects a type and can be used instead of the ``mzero`` method.
+Unlike ``unit`` however,
+the ``mzero`` function serves another purpose.
+Numbers, strings and lists can all be used as monoids
+and all already have an appropriate definition for ``+``.
+What they don't have is an ``mzero`` method.
+To allow numbers, strings and lists to be used as monoids
+without any extra work,
+the ``mzero`` *function* will return the appropriate value for these types
+and will attempt to call the ``mzero`` method on anything else.
+For instance::
+
+	mzero(int)					# returns 0, also works with float
+	mzero(str)					# returns ""
+	mzero(list)					# returns []
+	mzero(ProductMonoid)		# return ProductMonoid(1)
+	# etc...
+
+If you write code involving monoids,
+and you're not sure what type of monoid you might be handed,
+you should use the ``mzero`` *function* 
+and *not* the ``mzero`` method.
+
+Monoids and the Writer Monad
+============================
+
+The Writer monad performs calculations 
+and keeps a log.
+The log can be any monoid type
+-- strings being a typical example.
+
+The ``Writer`` class doesn't have a default log type,
+so to use Writer you need to inherit from it.
+It is extremely simple as the only thing you need to do is define the log type.
+For instance::
+
+	class StringWriter(Writer):
+		logType = str
+
+That's it.
+Everything else is already defined by ``Writer``.
+``StringWriter``, ``NumberWriter``, and ``ListWriter``
+are already defined in the ``Writer`` module for you to use.
+
+Calling ``unit`` with a ``Writer`` class
+packages whatever value you give it
+with the ``mzero`` of the log type::
+
+	unit(StringWriter, 8)		# Returns Writer(8, "")
+
+``Writer`` constructors take two values,
+the first being the result of whatever calculation you've just performed,
+the second being the log message 
+-- or value, or whatever --
+to add to the log.
+
+### Other Methods ###
+
+``getValue()``: Returns the result and log as a two-tuple.
+
+``getResult()``: Returns only the result.
+
+``getLog()``: Returns only the log.
+
+A quick example::
+
+	@curry
+	def add(x, y):
+		return StringWriter(x + y, "Adding " + str(x) + " and " + str(y) + ". ")
+
+	x = unit(StringWriter, 8) >> add(4) >> add(5)
+	print(x.getResult()) 	# prints 17
+	print(x.getLog())		# prints "Adding 8 and 4. Adding 12 and 5. "
+
+In the definition of ``add`, 
+``StringWriter`` could have also been just ``Writer``.
+It's really only necessary to use subclasses when using ``unit``,
+because ``unit`` checks for the ``logType`` variable.
+Otherwise simply giving plain old ``Writer`` a string
+-- or other monoid type argument --
+accomplishes the same thing.
+Both ``unit`` and ``bind`` (or ``>>``)
+convert ``*Writer`` types to plain ``Writer``
+but using ``StringWriter``
+-- or whatever --
+makes your intentions more clear.
