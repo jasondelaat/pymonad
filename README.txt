@@ -21,8 +21,8 @@ Features
 * Straight-forward partial application: just pass a curried function the number of arguments you want.
 * Composition of curried functions using ``*``.
 * Functor, Applicative Functor, and Monad operators: ``*``, ``&``, and ``>>``
-* Five basic monad types
 * Monoids
+* Five basic monad types
 
 1. Maybe - for when a calculation might fail
 2. Either - Similar to Maybe but with additional error reporting
