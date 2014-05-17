@@ -3,6 +3,7 @@
 # Licensed under BSD 3-clause licence.
 # --------------------------------------------------------
 from pymonad.Container import *
+from pymonad.Reader import curry
 
 class Monoid(Container):
 	"""
@@ -47,7 +48,8 @@ class Monoid(Container):
 
 		"""
 		raise NotImplementedError
-	
+
+@curry
 def mzero(monoid_type):
 	"""
 	Returns the identity value for monoid_type. Raises TypeError if monoid_type is not a valid monoid.
@@ -72,10 +74,11 @@ def mzero(monoid_type):
 		else:
 			raise TypeError(str(monoid_type) + " is not a Monoid.")
 
+@curry
 def mconcat(monoid_list):
 	"""
 	Takes a list of monoid values and reduces them to a single value by applying the
-	mplus operation to each pair of elements from the list.
+	mplus operation to each all elements of the list.
 
 	"""
 	result = mzero(monoid_list[0])
