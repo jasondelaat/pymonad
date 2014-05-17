@@ -28,10 +28,11 @@ class Functor(Container):
 		
 		return self.fmap(aFunction)
 
-	# todo: docstrings for 'unit'
 	@classmethod
 	def unit(cls, value):
+		""" Returns an instance of the Functor with 'value' in a minimum context.  """
 		raise NotImplementedError
 
 def unit(aClass, value):
+	""" Calls the 'unit' method of 'aClass' with 'value'.  """
 	return aClass.unit(value)
