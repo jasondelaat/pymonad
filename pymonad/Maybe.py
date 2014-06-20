@@ -4,8 +4,9 @@
 # --------------------------------------------------------
 
 from pymonad.Monad import *
+from pymonad.Monoid import *
 
-class Maybe(Monad):
+class Maybe(Monad, Monoid):
 	""" 
 	Represents a calculation which may fail. An alternative to using Exceptions. 
 	'Maybe' is an abstract type and should not be instantiated directly. There are two types
@@ -27,6 +28,10 @@ class Maybe(Monad):
 	@classmethod
 	def unit(cls, value):
 		return Just(value)
+
+	@staticmethod
+	def mzero():
+		return Nothing
 
 class Just(Maybe):
 	""" The 'Maybe' type used to represent a calculation that has succeeded. """
@@ -71,6 +76,10 @@ class Just(Maybe):
 		"""
 		return function(self.getValue())
 
+	def mplus(self, other):
+		if other == Nothing: return self
+		else: return Just(self.value + other.value)
+
 class _Nothing(Maybe):
 	""" The 'Maybe' type used to represent a calculation that has failed. """
 	def __init__(self):
@@ -98,5 +107,8 @@ class _Nothing(Maybe):
 	def bind(self, _):
 		""" Returns 'Nothing'. """
 		return self
+
+	def mplus(self, other):
+		return other
 
 Nothing = _Nothing()
