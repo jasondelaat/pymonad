@@ -112,3 +112,35 @@ class _Nothing(Maybe):
 		return other
 
 Nothing = _Nothing()
+
+class First(Monoid):
+	def __init__(self, value):
+		if not isinstance(value, Maybe): raise TypeError
+		else: super(First, self).__init__(value)
+	
+	def __str__(self):
+		return str(self.value)
+
+	@staticmethod
+	def mzero():
+		return First(Nothing)
+
+	def mplus(self, other):
+		if isinstance(self.value, Just): return self
+		else: return other
+
+class Last(Monoid):
+	def __init__(self, value):
+		if not isinstance(value, Maybe): raise TypeError
+		else: super(Last, self).__init__(value)
+	
+	def __str__(self):
+		return str(self.value)
+
+	@staticmethod
+	def mzero():
+		return First(Nothing)
+
+	def mplus(self, other):
+		if isinstance(other.value, Just): return other
+		else: return self
