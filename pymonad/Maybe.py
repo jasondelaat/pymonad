@@ -82,8 +82,8 @@ class Just(Maybe):
 
 class _Nothing(Maybe):
 	""" The 'Maybe' type used to represent a calculation that has failed. """
-	def __init__(self):
-		super(Maybe, self).__init__(None)
+	def __init__(self, value=None):
+		super(Maybe, self).__init__(value)
 
 	def __str__(self):
 		return "Nothing"
