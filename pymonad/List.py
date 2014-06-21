@@ -4,8 +4,9 @@
 # --------------------------------------------------------
 
 from pymonad.Monad import *
+from pymonad.Monoid import *
 
-class List(list, Monad):
+class List(list, Monad, Monoid):
 	"""
 	Represents a non-deterministic calculation or a calculation with more than one possible result.
 	Based on Python's built-in 'list' type, 'List' supports most basic list operations such as 
@@ -18,7 +19,7 @@ class List(list, Monad):
 
 	def __eq__(self, other):
 		if not isinstance(other, List):
-			return False
+			raise TypeError("Can't compare List with non-List type.")
 		return super(List, self).__eq__(other)
 
 	def __ne__(self, other):
@@ -77,3 +78,13 @@ class List(list, Monad):
 
 	def __rmul__(self, function): 
 		return self.fmap(function)
+
+	@staticmethod
+	def mzero():
+		return List()
+
+	def mplus(self, other):
+		return List(*(super(List, self).__add__(other)))
+
+	def __add__(self, other):
+		return self.mplus(other)
