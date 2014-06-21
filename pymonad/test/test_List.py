@@ -6,6 +6,7 @@
 import unittest
 from pymonad.Reader import curry
 from pymonad.List import *
+from MonoidTester import *
 
 def neg(x): return -x
 def head(x): return x[0]
@@ -56,6 +57,28 @@ class TestListUnit(unittest.TestCase):
 	def testUnitOnList(self):
 		self.assertEqual(List.unit(8), List(8))
 		self.assertEqual(unit(List, 8), List(8))
+
+class TestListMonoid(unittest.TestCase, MonoidTester):
+	def test_mzero(self):
+		self.givenMonoid(List)
+		self.get_mzero()
+		self.ensure_mzero_is(List())
+
+	def test_right_identity(self):
+		self.givenMonoid(List(1, 2, 3))
+		self.ensure_monoid_plus_zero_equals(List(1, 2, 3))
+
+	def test_left_identity(self):
+		self.givenMonoid(List(1, 2, 3))
+		self.ensure_zero_plus_monoid_equals(List(1, 2, 3))
+
+	def test_associativity(self):
+		self.givenMonoids(List(1, 2, 3), List(4, 5, 6), List(7, 8, 9))
+		self.ensure_associativity()
+	
+	def test_mplus(self):
+		self.givenMonoids(List(1, 2, 3), List(2, 3, 4))
+		self.ensure_mconcat_equals(List(1, 2, 3, 2, 3, 4))
 
 if __name__ == "__main__":
 	unittest.main()
