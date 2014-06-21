@@ -30,8 +30,8 @@ class FunctorTester(object):
 	def setClassUnderTest(self, cl):
 		self.classUnderTest = cl
 
-	def given(self, value):
-		self.monad = self.classUnderTest(value)
+	def given(self, *value):
+		self.monad = self.classUnderTest(*value)
 
 	def givenMonads(self, first, second):
 		self.monads = [first, second]
