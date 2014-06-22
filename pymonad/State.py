@@ -6,12 +6,6 @@
 from pymonad.Monad import *
 
 class State(Monad):
-	def __init__(self, functionOrValue):
-		if callable(functionOrValue):
-			super(State, self).__init__(functionOrValue)
-		else:
-			super(State, self).__init__(lambda state: (functionOrValue, state))
-
 	def fmap(self, function): 
 		@State
 		def newState(state):
@@ -47,30 +41,5 @@ class State(Monad):
 	def __call__(self, state): 
 		return self.value(state)
 
-if __name__ == "__main__":
-	from pymonad.Reader import curry
-
-	def neg(x): return -x
-
-	@curry
-	def mul(x, y): return x * y
-
-	@curry
-	def add(x, y):
-		return State(lambda state: (x + y, state + 1))
-
-	@curry
-	def sub(y, x):
-		return State(lambda state: (x - y, state + 1))
-		
-	x = unit(State, 2) >> add(3) >> add(4) >> add(5) >> sub(6)
-	print(x(0))
-
-	y = neg * unit(State, 2)
-	print(y(0))
-
-	y = neg * State(2)
-	print(y(1))
-
-	y = mul * State(2) & State(9)
-	print(y(0))
+	def __eq__(self, other):
+		raise TypeError("State: Can't compare functions for equality.")
