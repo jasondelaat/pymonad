@@ -19,7 +19,7 @@ def plus10(x):
 
 @curry
 def fmap(x, y):
-	return x.fmap(y)
+	return x * y
 
 @curry
 def revCall(parameter, function):
@@ -73,12 +73,13 @@ class ApplicativeTester(FunctorTester):
 		except TypeError: self.assertEqual(x(0), self.monad(0))
 
 	def ensure_third_applicative_law_holds(self):
-		x = unit(self.classUnderTest, fmap)
-		u = unit(self.classUnderTest, neg)
-		v = unit(self.classUnderTest, plus10)
-		lhs = x & u & v & self.monad
-		rhs = u & (v & self.monad)
-		#self.assertEqual(lhs, rhs)
+		u = unit(self.classUnderTest, fmap)
+		v = unit(self.classUnderTest, neg)
+		w = unit(self.classUnderTest, plus10)
+		lhs = u & v & w & self.monad
+		rhs = v & (w & self.monad)
+		try: self.assertEqual(lhs, rhs)
+		except TypeError: self.assertEqual(lhs(0), rhs(0))
 
 	def ensure_fourth_applicative_law_holds(self):
 		x = unit(self.classUnderTest, neg)
