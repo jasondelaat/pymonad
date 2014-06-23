@@ -52,6 +52,7 @@ class List(list, Monad, Monoid):
 		This method is mainly to maintain compatibility with other monads,
 		it's not strictly necessary, you can simply operate on the 'List' like
 		any other list in Python.
+
 		"""
 		return self
 
@@ -81,10 +82,17 @@ class List(list, Monad, Monoid):
 
 	@staticmethod
 	def mzero():
+		""" Returns the identity element (an empty List) of the List monoid.  """
 		return List()
 
 	def mplus(self, other):
+		"""
+		Combines two List monoid values into a single List monoid by concatenating the
+		two lists together.
+
+		"""
 		return List(*(super(List, self).__add__(other)))
 
 	def __add__(self, other):
+		""" Overrides Python's native list __add__ operator to call 'mplus'.  """
 		return self.mplus(other)
