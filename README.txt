@@ -21,14 +21,15 @@ Features
 * Straight-forward partial application: just pass a curried function the number of arguments you want.
 * Composition of curried functions using ``*``.
 * Functor, Applicative Functor, and Monad operators: ``*``, ``&``, and ``>>``
-* Monoids
-* Five basic monad types
+* Monoids - int, float, str, list, List, Maybe, First, and Last
+* Six predefined monad types
 
 1. Maybe - for when a calculation might fail
 2. Either - Similar to Maybe but with additional error reporting
 3. List - For non-deterministic calculations
 4. Reader - For sequencing calculations which all access the same data.
 5. Writer - For keeping logs of program execution.
+6. State - Simulating mutable state in a purely functional way.
 
 Getting Started
 ===============
@@ -38,29 +39,29 @@ Installation
 
 Using pip::
 
-	pip install PyMonad
+    pip install PyMonad
 
 Or download the package and run::
 
-	python setup.py install
+    python setup.py install
 
 from the project directory.
-	
+    
 Imports
 -------
 
 Import the entire package::
-	
-	from pymonad import *
+    
+    from pymonad import *
 
 Or just a single monad type::
 
-	from pymonad.Maybe import *
+    from pymonad.Maybe import *
 
 If you're not importing everything
 but want to use curried functions::
 
-	from pymonad.Reader import curry
+    from pymonad.Reader import curry
 
 Curried Functions and Partial Application
 -----------------------------------------
@@ -68,64 +69,64 @@ Curried Functions and Partial Application
 To define a curried function
 use the ``@curry`` decorator::
 
-	@curry
-	def add(x, y):
-		return x + y
+    @curry
+    def add(x, y):
+        return x + y
 
-	@curry
-	def func(x, y, z):
-		# Do something with x, y and z.
-		...
+    @curry
+    def func(x, y, z):
+        # Do something with x, y and z.
+        ...
 
 The above fuctions can be partially applied 
 by passing them less than their full set of arguments::
 
-	add(7, 8)			# Calling 'add' normally returns 15 as expected.
-	add7 = add(7)		# Partial application: 'add7' is a function taking one argument.
-	add7(8)				# Applying the final argument retruns 15...
-	add7(400)			# ... or 407, or whatever.
+    add(7, 8)            # Calling 'add' normally returns 15 as expected.
+    add7 = add(7)        # Partial application: 'add7' is a function taking one argument.
+    add7(8)                # Applying the final argument retruns 15...
+    add7(400)            # ... or 407, or whatever.
 
-	# 'func' can be applied in any of the following ways.
-	func(1, 2, 3)		# Call func normally.
-	func(1, 2)(3)		# Partially applying two, then applying the last argument.
-	func(1)(2, 3)		# Partially applying one, then applying the last two arguments.
-	func(1)(2)(3)		# Partially applying one, partially applying again, then applying the last argument.
+    # 'func' can be applied in any of the following ways.
+    func(1, 2, 3)        # Call func normally.
+    func(1, 2)(3)        # Partially applying two, then applying the last argument.
+    func(1)(2, 3)        # Partially applying one, then applying the last two arguments.
+    func(1)(2)(3)        # Partially applying one, partially applying again, then applying the last argument.
 
 Function Composition
 --------------------
 
 Curried functions can be composed with the ``*`` operator.
 Functions are applied from right to left::
-	
-	# Returns the first element of a list.
-	@curry
-	def head(aList): 
-		return aList[0]
+    
+    # Returns the first element of a list.
+    @curry
+    def head(aList): 
+        return aList[0]
 
-	# Returns everything except the first element of the list.
-	@curry 
-	def tail(aList): 
-		return aList[1:]
+    # Returns everything except the first element of the list.
+    @curry 
+    def tail(aList): 
+        return aList[1:]
 
-	second = head * tail		# 'tail' will be applied first, then its result passed to 'head'
-	second([1, 2, 3, 4])		# returns 2
+    second = head * tail        # 'tail' will be applied first, then its result passed to 'head'
+    second([1, 2, 3, 4])        # returns 2
 
 You can also compose partially applied functions::
 
-	@curry
-	def add(x, y): 
-		return x + y
+    @curry
+    def add(x, y): 
+        return x + y
 
-	@curry
-	def mul(x, y): 
-		return x * y
+    @curry
+    def mul(x, y): 
+        return x * y
 
-	comp = add(7) * mul(2)		# 'mul(2)' is evaluated first, and it's result passed to 'add(7)'
-	comp(4)						# returns 15
+    comp = add(7) * mul(2)        # 'mul(2)' is evaluated first, and it's result passed to 'add(7)'
+    comp(4)                        # returns 15
 
-	# Composition order matters!
-	comp = mul(2) * add(7)
-	comp(4)						# returns 22
+    # Composition order matters!
+    comp = mul(2) * add(7)
+    comp(4)                        # returns 22
 
 Functors, Applicative Functors, and Monads
 ------------------------------------------
@@ -150,29 +151,29 @@ which can be invoked via the fmap operator ``*``.
 ``fmap`` takes functions which operate on simple types
 -- integers, strings, etc. --
 and allows them to operate of functor types::
-	
-	from pymonad.Maybe import *
-	from pymonad.List import *
+    
+    from pymonad.Maybe import *
+    from pymonad.List import *
 
-	# 'neg' knows nothing about functor types...
-	def neg(x):
-		return -x
+    # 'neg' knows nothing about functor types...
+    def neg(x):
+        return -x
 
-	# ... but that doesn't stop us from using it anyway.
-	neg * Just(9)				# returns Just(-9)
-	neg * Nothing				# returns Nothing
-	neg * List(1, 2, 3, 4)		# returns List(-1, -2, -3, -4)
+    # ... but that doesn't stop us from using it anyway.
+    neg * Just(9)                # returns Just(-9)
+    neg * Nothing                # returns Nothing
+    neg * List(1, 2, 3, 4)        # returns List(-1, -2, -3, -4)
 
 Notice that the function is on the left
 and the functor type is on the right.
 If you think of ``*`` as a sort of fancy opening paren,
 then normal calls and ``fmap`` calls have basically the same structure::
 
-	------------------------------------------------------------------
-					function		open		argument		close
-	Normal call		  neg			 (			   9			  )
-	fmap call	 	  neg			 *			 Just(9)
-	------------------------------------------------------------------
+    ------------------------------------------------------------------
+                    function        open        argument        close
+    Normal call          neg             (               9              )
+    fmap call           neg             *             Just(9)
+    ------------------------------------------------------------------
 
 
 Notice that ``*`` is also the function composition operator.
@@ -192,16 +193,16 @@ Applicative Functors extend that capability
 allowing you to use normal functions of multiple arguments
 with functor types::
 
-	# 'add' operates on simple types, not functors or applicatives...
-	def add(x, y):
-		return x + y
+    # 'add' operates on simple types, not functors or applicatives...
+    def add(x, y):
+        return x + y
 
-	# ... but we're going to use it on those types anyway.
-	# Note that we're still using '*' but now in conjunction with '&'
-	add * Just(7) & Just(8)					# returns Just(15)
-	add * Nothing & Just(8)					# returns Nothing
-	add * Just(7) & Nothing					# returns Nothing
-	add * List(1, 2, 3) & List(4, 5, 6)		# returns List(5, 6, 7, 6, 7, 8, 7, 8, 9)
+    # ... but we're going to use it on those types anyway.
+    # Note that we're still using '*' but now in conjunction with '&'
+    add * Just(7) & Just(8)                    # returns Just(15)
+    add * Nothing & Just(8)                    # returns Nothing
+    add * Just(7) & Nothing                    # returns Nothing
+    add * List(1, 2, 3) & List(4, 5, 6)        # returns List(5, 6, 7, 6, 7, 8, 7, 8, 9)
 
 If ``*`` is a fancy paren,
 ``&`` is the fancy comma
@@ -220,35 +221,35 @@ which takes a single,
 non-monad argument
 and returns an instance of the same monad::
 
-	from pymonad.List import *
-	from pymonad.Reader import curry
+    from pymonad.List import *
+    from pymonad.Reader import curry
 
-	# Takes a simple number type and returns a 'List' containing that value and it's negative.
-	def positive_and_negative(x):
-		return List(x, -x)
+    # Takes a simple number type and returns a 'List' containing that value and it's negative.
+    def positive_and_negative(x):
+        return List(x, -x)
 
-	# You can call 'positive_and_negative' normally.
-	positive_and_negative(9)		# returns List(9, -9)
+    # You can call 'positive_and_negative' normally.
+    positive_and_negative(9)        # returns List(9, -9)
 
-	# Or you can create a List...
-	x = List(9)
+    # Or you can create a List...
+    x = List(9)
 
-	# ... and then use '>>' to apply positive_and_negative'
-	x >> positive_and_negative		# also returns List(9, -9)
+    # ... and then use '>>' to apply positive_and_negative'
+    x >> positive_and_negative        # also returns List(9, -9)
 
-	# But 'x' could also have more than one value...
-	x = List(1, 2)
-	x >> positive_and_negative		# returns List(1, -1, 2, -2)
+    # But 'x' could also have more than one value...
+    x = List(1, 2)
+    x >> positive_and_negative        # returns List(1, -1, 2, -2)
 
-	# And of course you can sequence partially applied functions.
-	@curry
-	def add_and_sub(x, y):
-		return List(y + x, y - x)
+    # And of course you can sequence partially applied functions.
+    @curry
+    def add_and_sub(x, y):
+        return List(y + x, y - x)
 
-	List(2) >> positive_and_negative >> add_and_sub(3)		# creates List(2)
-															# applies positive_and_negative: List(2, -2)
-															# then add_and_sub(3): List(5, -1, 1, -5)
-															# final result: List(5, -1, 1, -5)
+    List(2) >> positive_and_negative >> add_and_sub(3)        # creates List(2)
+                                                            # applies positive_and_negative: List(2, -2)
+                                                            # then add_and_sub(3): List(5, -1, 1, -5)
+                                                            # final result: List(5, -1, 1, -5)
 
 Variable assignment in monadic code
 -----------------------------------
@@ -259,16 +260,16 @@ Because of that,
 you can use ``lambda`` to assign values to a variable
 withing monadic code,
 like this::
-	
-	from pymonad.Maybe import *
+    
+    from pymonad.Maybe import *
 
-	Just(9) >> (lambda x: 				# Here, 'x' takes the value '9'
-	Just(8) >> (lambda y:				# And 'y' takes the value '8'
-	Just(x + y)))						# The final returned value is 'Just(9 + 8)', or 'Just(17)'
+    Just(9) >> (lambda x:                 # Here, 'x' takes the value '9'
+    Just(8) >> (lambda y:                # And 'y' takes the value '8'
+    Just(x + y)))                        # The final returned value is 'Just(9 + 8)', or 'Just(17)'
 
 You can also simply ignore values if you wish::
 
-	Just(9) >> Just(8)					# The '9' is thrown away and the result of this computation is 'Just(8)'
+    Just(9) >> Just(8)                    # The '9' is thrown away and the result of this computation is 'Just(8)'
 
 Implementing Monads
 -------------------
@@ -277,7 +278,7 @@ Implementing other functors, applicatives, or monads is fairly straight-forward.
 There are three classes, 
 serving as interfaces::
 
-	Monad --> Applicative --> Functor
+    Monad --> Applicative --> Functor
 
 To implement a new functor,
 create a new class which derives from ``Functor``
@@ -322,8 +323,8 @@ It is provided to give a more "functional look" to code,
 but use whichever method you prefer.
 With the Maybe monad for example:
 
-1. Maybe.unit(8)		# returns Just(8)
-2. unit(Maybe, 8)		# also returns Just(8)
+1. Maybe.unit(8)        # returns Just(8)
+2. unit(Maybe, 8)        # also returns Just(8)
 
 In either case all functors (and applicatives and monads) should implement the ``unit`` class method.
 
@@ -344,8 +345,8 @@ In the case of numbers,
 zero is the identity element and addition is the operation.
 Monoids adhere to the following laws:
 
-1. Left and right identity: x + 0 = 0 + x = x	 
-2. Associativity: (x + y) + z = x + (y + z) = x + y + z 	
+1. Left and right identity: x + 0 = 0 + x = x     
+2. Associativity: (x + y) + z = x + (y + z) = x + y + z     
 
 Stings are also monoids with the identity element ``mzero`` equal to the empty string,
 and the operation ``mplus`` concatenation.
@@ -365,13 +366,13 @@ one way with zero and addition as discussed above
 and the other way with one and multiplication.
 We could implement that like this::
 
-	class ProductMonoid(Monoid):
-		@staticmethod
-		def mzero():
-			return ProductMonoid(1)
+    class ProductMonoid(Monoid):
+        @staticmethod
+        def mzero():
+            return ProductMonoid(1)
 
-		def mplus(self, other):
-			return ProductMonoid(self.getValue() * other.getValue())
+        def mplus(self, other):
+            return ProductMonoid(self.getValue() * other.getValue())
 
 The ``+`` operator (aka __add__()) is defined to call ``mplus`` on monoid instances,
 so you can simply "add" monoid values together rather than having to call ``mplus`` directly.
@@ -393,11 +394,11 @@ the ``mzero`` *function* will return the appropriate value for these types
 and will attempt to call the ``mzero`` method on anything else.
 For instance::
 
-	mzero(int)					# returns 0, also works with float
-	mzero(str)					# returns ""
-	mzero(list)					# returns []
-	mzero(ProductMonoid)		# return ProductMonoid(1)
-	# etc...
+    mzero(int)                    # returns 0, also works with float
+    mzero(str)                    # returns ""
+    mzero(list)                    # returns []
+    mzero(ProductMonoid)        # return ProductMonoid(1)
+    # etc...
 
 If you write code involving monoids,
 and you're not sure what type of monoid you might be handed,
@@ -417,8 +418,8 @@ so to use Writer you need to inherit from it.
 It is extremely simple as the only thing you need to do is define the log type.
 For instance::
 
-	class StringWriter(Writer):
-		logType = str
+    class StringWriter(Writer):
+        logType = str
 
 That's it.
 Everything else is already defined by ``Writer``.
@@ -429,7 +430,7 @@ Calling ``unit`` with a ``Writer`` class
 packages whatever value you give it
 with the ``mzero`` of the log type::
 
-	unit(StringWriter, 8)		# Returns Writer(8, "")
+    unit(StringWriter, 8)        # Returns Writer(8, "")
 
 ``Writer`` constructors take two values,
 the first being the result of whatever calculation you've just performed,
@@ -447,13 +448,13 @@ to add to the log.
 
 A quick example::
 
-	@curry
-	def add(x, y):
-		return StringWriter(x + y, "Adding " + str(x) + " and " + str(y) + ". ")
+    @curry
+    def add(x, y):
+        return StringWriter(x + y, "Adding " + str(x) + " and " + str(y) + ". ")
 
-	x = unit(StringWriter, 8) >> add(4) >> add(5)
-	print(x.getResult()) 	# prints 17
-	print(x.getLog())		# prints "Adding 8 and 4. Adding 12 and 5. "
+    x = unit(StringWriter, 8) >> add(4) >> add(5)
+    print(x.getResult())     # prints 17
+    print(x.getLog())        # prints "Adding 8 and 4. Adding 12 and 5. "
 
 In the definition of ``add`, 
 ``StringWriter`` could have also been just ``Writer``.
