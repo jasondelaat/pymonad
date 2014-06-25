@@ -160,8 +160,8 @@ and allows them to operate of functor types::
         return -x
 
     # ... but that doesn't stop us from using it anyway.
-    neg * Just(9)                # returns Just(-9)
-    neg * Nothing                # returns Nothing
+    neg * Just(9)                 # returns Just(-9)
+    neg * Nothing                 # returns Nothing
     neg * List(1, 2, 3, 4)        # returns List(-1, -2, -3, -4)
 
 Notice that the function is on the left
@@ -170,8 +170,8 @@ If you think of ``*`` as a sort of fancy opening paren,
 then normal calls and ``fmap`` calls have basically the same structure::
 
     ------------------------------------------------------------------
-                    function        open        argument        close
-    Normal call          neg             (               9              )
+                    function          open          argument        close
+    Normal call         neg             (               9              )
     fmap call           neg             *             Just(9)
     ------------------------------------------------------------------
 
@@ -247,9 +247,9 @@ and returns an instance of the same monad::
         return List(y + x, y - x)
 
     List(2) >> positive_and_negative >> add_and_sub(3)        # creates List(2)
-                                                            # applies positive_and_negative: List(2, -2)
-                                                            # then add_and_sub(3): List(5, -1, 1, -5)
-                                                            # final result: List(5, -1, 1, -5)
+                                                              # applies positive_and_negative: List(2, -2)
+                                                              # then add_and_sub(3): List(5, -1, 1, -5)
+                                                              # final result: List(5, -1, 1, -5)
 
 Variable assignment in monadic code
 -----------------------------------
@@ -264,8 +264,8 @@ like this::
     from pymonad.Maybe import *
 
     Just(9) >> (lambda x:                 # Here, 'x' takes the value '9'
-    Just(8) >> (lambda y:                # And 'y' takes the value '8'
-    Just(x + y)))                        # The final returned value is 'Just(9 + 8)', or 'Just(17)'
+    Just(8) >> (lambda y:                 # And 'y' takes the value '8'
+    Just(x + y)))                         # The final returned value is 'Just(9 + 8)', or 'Just(17)'
 
 You can also simply ignore values if you wish::
 
@@ -323,7 +323,7 @@ It is provided to give a more "functional look" to code,
 but use whichever method you prefer.
 With the Maybe monad for example:
 
-1. Maybe.unit(8)        # returns Just(8)
+1. Maybe.unit(8)         # returns Just(8)
 2. unit(Maybe, 8)        # also returns Just(8)
 
 In either case all functors (and applicatives and monads) should implement the ``unit`` class method.
@@ -396,9 +396,9 @@ For instance::
 
     mzero(int)                    # returns 0, also works with float
     mzero(str)                    # returns ""
-    mzero(list)                    # returns []
-    mzero(ProductMonoid)        # return ProductMonoid(1)
-    # etc...
+    mzero(list)                   # returns []
+    mzero(ProductMonoid)          # return ProductMonoid(1)
+                                  # etc...
 
 If you write code involving monoids,
 and you're not sure what type of monoid you might be handed,
@@ -468,3 +468,79 @@ convert ``*Writer`` types to plain ``Writer``
 but using ``StringWriter``
 -- or whatever --
 makes your intentions more clear.
+
+State Monad
+===========
+
+Unlike most of the other monad types,
+the state monad doesn't wrap values
+it wraps functions.
+Specifically,
+it wraps functions which accept a single 'state' argument
+and produce a result and a new 'state' as a 2-tuple.
+The 'state' can be anything:
+simple types like integers,
+lists, dictionaries, custom objects/data types,
+whatever.
+The important thing 
+is that any given chain of stateful computations
+all use the same type of state.
+
+The ``State`` constuctor should only be used to create stateful computations.
+Trying to use ``State`` to inject values,
+or even non-stateful functions,
+into the monad will cause it to function incorrectly.
+To inject values,
+use the ``unit`` function.
+
+Here's an example of using ``State``.
+We'll create a little system which can perform addition and subtraction.
+Our total will never be allowed to drop below zero.
+The state that we'll be keeping track of is a simple count 
+of the total number of operations performed.
+Every time we perform an addition or subtraction
+the count will go up by one::
+
+	@curry
+	def add(x, y):
+		return State(lambda old_state: (x + y, old_state + 1))
+
+	@curry
+	def subtract(y, x):
+		@State
+		def state_computation(old_state):
+			if x - y < 0: 
+				return (0, old_state + 1)
+			else:
+				return (x - y, old_state + 1)
+		return state_computation
+
+As mentioned,
+The ``State`` constructor takes a function which accepts a 'state',
+in this case simply an integer, 
+and produces a result and a new state as a tuple.
+Although we could have done ``subtract`` as a one-liner,
+I wanted to show that,
+if your computation is more complex than can easily be contained in a ``lambda`` expression,
+you can use ``State`` as a decorator to define the stateful computation.
+
+Using these functions is now simple::
+
+	x = unit(State, 1) >> add(2) >> add(3) >> subtract(40) >> add(5)
+
+``x`` now contains a stateful computation but that computation hasn't been executed yet.
+Since ``State`` values contain functions,
+you can call them like functions 
+by supplying an initial state value::
+	
+	y = x(0)        # Since we're counting the total number of operations, we start at zero.
+	print(y)        # Prints (5, 4), '5' is the result and '4' is the total number of operations performed.
+
+Calling a ``State`` function in this way will always return the (result, state) tuple.
+If you're only interested in the result::
+
+	y = x.getResult(0)        # Here 'y' takes the value 5, the result of the computataion.
+
+Or if you only care about the final state::
+
+	y = x.getState(0)         # Here 'y' takes the value 4, the final state of the computation.
