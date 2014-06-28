@@ -6,56 +6,88 @@
 import unittest
 from pymonad.Reader import curry
 from pymonad.List import *
+from MonadTester import *
+from MonoidTester import *
 
-def neg(x): return -x
-def head(x): return x[0]
-def plusMinusSame(x):
-	return List(x+1, x-1, x)
+class TestListFunctor(unittest.TestCase, MonadTester):
+	def __init__(self, x):
+		super(TestListFunctor, self).__init__(x)
+		self.setClassUnderTest(List)
 
-class ListTests(unittest.TestCase):
-	def testListAsList(self):
-		self.assertEqual(List(1, 2, 3)[0], 1)
-		self.assertEqual(List(1, 2, 3)[1:], List(2, 3))
-		self.assertEqual(List(1, 2, 3)[:2], List(1, 2))
-		self.assertEqual(List([1, 2], [2, 3], [3, 4])[:1], List([1, 2]))
-		a = List(1, 2, 3, 4)
-		a[:2] = List(5, 6)
-		self.assertEqual(a, List(5, 6, 3, 4))
+	def testFunctorLaws(self):
+		self.given(1, 2, 3)
+		self.ensure_first_functor_law_holds()
+		self.ensure_second_functor_law_holds()
 
-	def testListEquality(self):
-		self.assertTrue(List(1, 2) == List(1, 2))
-		self.assertTrue(List(1, 2) != List([1, 2]))
-		self.assertTrue(List(1, 2) != List(1))
-		self.assertTrue(List(1, 2) != [1, 2])
-		self.assertTrue([1, 2] != List(1, 2))
+class TestListApplicative(unittest.TestCase, MonadTester):
+	def __init__(self, x):
+		super(TestListApplicative, self).__init__(x)
+		self.setClassUnderTest(List)
 
-		self.assertFalse(List(1, 2) != List(1, 2))
-		self.assertFalse(List(1, 2) == List([1, 2]))
-		self.assertFalse(List(1, 2) == List(1))
-		self.assertFalse(List(1, 2) == [1, 2])
-		self.assertFalse([1, 2] == List(1, 2))
+	def testApplicativeLaws(self):
+		self.given(1, 2, 3)
+		self.ensure_first_applicative_law_holds()
+		self.ensure_second_applicative_law_holds()
+		self.ensure_third_applicative_law_holds()
+		self.ensure_fourth_applicative_law_holds()
+		self.ensure_fifth_applicative_law_holds()
 
-	def testListFunctor(self):
-		self.assertEqual(neg * List(1, 2, 3), List(-1, -2, -3))
-		self.assertEqual(head * List([1, 2], [2, 3], [3, 4]), List(1, 2, 3))
-	
-	def testListApplicative(self):
-		@curry
-		def add(x, y): return x + y
+class TestListMonad(unittest.TestCase, MonadTester):
+	def __init__(self, x):
+		super(TestListMonad, self).__init__(x)
+		self.setClassUnderTest(List)
 
-		self.assertEqual(add * List(1, 2, 3) & List(1, 2, 3), List(2, 3, 4, 3, 4, 5, 4, 5, 6))
-		self.assertEqual(List(add(1), add(2), add(3)) & List(1, 2, 3), List(2, 3, 4, 3, 4, 5, 4, 5, 6))
-		
-	def testListMonad(self):
-		self.assertEqual(List(1) >> plusMinusSame, List(2, 0, 1))
-		self.assertEqual(List(1) >> plusMinusSame >> plusMinusSame, List(3, 1, 2, 1, -1, 0, 2, 0, 1))
-		self.assertEqual(neg * (List(1) >> plusMinusSame), List(-2, 0, -1))
-		self.assertEqual(neg * List(1) >> plusMinusSame, List(0, -2, -1))
+	def monad_function_f(self, x):
+		return List(-x, x)
+
+	def monad_function_g(self, x):
+		return List(x * 5, x / 2)
+
+	def testMonadLaws(self):
+		self.given(1, 2, 3)
+		self.ensure_first_monad_law_holds()
+		self.ensure_second_monad_law_holds()
+		self.ensure_third_monad_law_holds()
+
+class TestListEquality(unittest.TestCase, MonadTester):
+	def testEqualityOfIdenticalTypes(self):
+		self.givenMonads(List(1, 2, 3), List(1, 2, 3))
+		self.ensureMonadsAreEqual()
+
+	def testInequalityOfIdenticalTypes(self):
+		self.givenMonads(List(1, 2, 3), List(4, 5, 6))
+		self.ensureMonadsAreNotEqual()
+
+	def testMonadComparisonExceptionWithNothing(self):
+		self.givenMonads(List(1, 2, 3), Reader(7))
+		self.ensureComparisonRaisesException()
 
 class TestListUnit(unittest.TestCase):
 	def testUnitOnList(self):
 		self.assertEqual(List.unit(8), List(8))
 		self.assertEqual(unit(List, 8), List(8))
+
+class TestListMonoid(unittest.TestCase, MonoidTester):
+	def test_mzero(self):
+		self.givenMonoid(List)
+		self.get_mzero()
+		self.ensure_mzero_is(List())
+
+	def test_right_identity(self):
+		self.givenMonoid(List(1, 2, 3))
+		self.ensure_monoid_plus_zero_equals(List(1, 2, 3))
+
+	def test_left_identity(self):
+		self.givenMonoid(List(1, 2, 3))
+		self.ensure_zero_plus_monoid_equals(List(1, 2, 3))
+
+	def test_associativity(self):
+		self.givenMonoids(List(1, 2, 3), List(4, 5, 6), List(7, 8, 9))
+		self.ensure_associativity()
+	
+	def test_mplus(self):
+		self.givenMonoids(List(1, 2, 3), List(2, 3, 4))
+		self.ensure_mconcat_equals(List(1, 2, 3, 2, 3, 4))
 
 if __name__ == "__main__":
 	unittest.main()
