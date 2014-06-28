@@ -12,3 +12,4 @@ from pymonad.Either import *
 from pymonad.List import *
 from pymonad.Monoid import *
 from pymonad.Writer import *
+from pymonad.State import *
