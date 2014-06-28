@@ -41,7 +41,7 @@ Using pip::
 
     pip install PyMonad
 
-Or download the package and run::
+Or download the package or clone the `git repository from bitbucket <https://bitbucket.org/jason_delaat/pymonad>` and run::
 
     python setup.py install
 
