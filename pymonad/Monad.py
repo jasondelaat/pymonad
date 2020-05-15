@@ -18,10 +18,37 @@ class Monad(Applicative):
 	def __init__(self, value):
 		""" Wraps 'value' in the Monad's context. """
 		super(Monad, self).__init__(value)
+		self.is_monad_value = True
 
 	def bind(self, function):
 		""" Applies 'function' to the result of a previous monadic calculation. """
 		raise NotImplementedError
+
+	def then(self, function):
+		""" Combines the functionality of bind and fmap.
+
+		Instead of worrying about whether to use bind or fmap,
+		users can just use the then method to chain function
+		calls together. The then method uses attempts to use
+		bind first and if that doesn't work, uses fmap
+		instead.
+
+		Args:
+		function: A python function or lambda expression
+		which returns either a build-in type (int, string,
+		etc.) or an appropriate monad type (Maybe, Either,
+		etc.)
+
+		Returns:
+		A monad value of the same type as 'self'
+		"""
+
+		result = self.bind(function)
+		try:
+			result.is_monad_value
+			return result
+		except AttributeError:
+			return self.fmap(function)
 
 	def __rshift__(self, function):
 		""" 
