@@ -1,7 +1,16 @@
 # --------------------------------------------------------
-# (c) Copyright 2014 by Jason DeLaat. 
+# (c) Copyright 2014, 2020 by Jason DeLaat.
 # Licensed under BSD 3-clause licence.
 # --------------------------------------------------------
+""" Implements the Monad base class.
+
+The Monad base class is an abstract class which defines the operations
+available on all monad instances. To create a new Monad instance,
+users should create a class which inherits from Monad and provides
+implementations for the methods fmap, amap, bind, and class method
+unit. See the documentation for those methods for more information on
+how to implement them properly.
+"""
 
 class Monad:
     """
@@ -17,40 +26,38 @@ class Monad:
         self.value = value
         self.is_monad_value = True
 
-    def fmap(self, function): 
+    def fmap(self, function):
         """ Applies 'function' to the contents of the functor and returns a new functor value. """
         raise NotImplementedError("'fmap' not defined.")
-    
-    def __rmul__(self, aFunction):
-        """ 
-        The 'fmap' operator.
+
+    def __rmul__(self, a_function):
+        """ The 'fmap' operator.
         The following are equivalent:
 
-            aFunctor.fmap(aFunction)
-            aFunction * aFunctor
+            aFunctor.fmap(a_function)
+            a_function * aFunctor
 
         """
-        
-        return self.fmap(aFunction)
+
+        return self.fmap(a_function)
 
     @classmethod
     def unit(cls, value):
         """ Returns an instance of the Functor with 'value' in a minimum context.  """
         raise NotImplementedError
 
-    def amap(self, functorValue):
-        """ 
-        Applies the function stored in the functor to the value inside 'functorValue'
+    def amap(self, functor_value):
+        """ Applies the function stored in the functor to the value inside 'functor_value'
         returning a new functor value.
 
         """
         raise NotImplementedError
 
-    def __and__(self, functorValue):
+    def __and__(self, functor_value):
         """ The 'amap' operator. """
-        return self.amap(functorValue)
-    
-    def getValue(self):
+        return self.amap(functor_value)
+
+    def get_value(self):
         """ Returns the value held by the Container. """
         return self.value
 
@@ -82,26 +89,27 @@ class Monad:
 
         result = self.bind(function)
         try:
-            result.is_monad_value
+            result.is_monad_value # pylint: disable=pointless-statement
             return result
         except AttributeError:
             return self.fmap(function)
 
     def __rshift__(self, function):
-        """ 
-        The 'bind' operator. The following are equivalent:
+        """ The 'bind' operator. The following are equivalent:
             monadValue >> someFunction
             monadValue.bind(someFunction)
 
         """
-        if callable(function): 
+        if callable(function): # pylint: disable=no-else-return
             result = self.bind(function)
-            if not isinstance(result, Monad): raise TypeError("Operator '>>' must return a Monad instance.")
+            if not isinstance(result, Monad):
+                raise TypeError("Operator '>>' must return a Monad instance.")
             return result
         else:
-            if not isinstance(function, Monad): raise TypeError("Operator '>>' must return a Monad instance.")
+            if not isinstance(function, Monad):
+                raise TypeError("Operator '>>' must return a Monad instance.")
             return self.bind(lambda _: function)
 
-def unit(aClass, value):
-    """ Calls the 'unit' method of 'aClass' with 'value'.  """
-    return aClass.unit(value)
+def unit(a_class, value):
+    """ Calls the 'unit' method of 'a_class' with 'value'.  """
+    return a_class.unit(value)
