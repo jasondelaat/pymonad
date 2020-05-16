@@ -30,17 +30,6 @@ class Monad:
         """ Applies 'function' to the contents of the functor and returns a new functor value. """
         raise NotImplementedError("'fmap' not defined.")
 
-    def __rmul__(self, a_function):
-        """ The 'fmap' operator.
-        The following are equivalent:
-
-            aFunctor.fmap(a_function)
-            a_function * aFunctor
-
-        """
-
-        return self.fmap(a_function)
-
     @classmethod
     def unit(cls, value):
         """ Returns an instance of the Functor with 'value' in a minimum context.  """
@@ -52,10 +41,6 @@ class Monad:
 
         """
         raise NotImplementedError
-
-    def __and__(self, functor_value):
-        """ The 'amap' operator. """
-        return self.amap(functor_value)
 
     def get_value(self):
         """ Returns the value held by the Container. """
@@ -93,22 +78,6 @@ class Monad:
             return result
         except AttributeError:
             return self.fmap(function)
-
-    def __rshift__(self, function):
-        """ The 'bind' operator. The following are equivalent:
-            monadValue >> someFunction
-            monadValue.bind(someFunction)
-
-        """
-        if callable(function): # pylint: disable=no-else-return
-            result = self.bind(function)
-            if not isinstance(result, Monad):
-                raise TypeError("Operator '>>' must return a Monad instance.")
-            return result
-        else:
-            if not isinstance(function, Monad):
-                raise TypeError("Operator '>>' must return a Monad instance.")
-            return self.bind(lambda _: function)
 
 def unit(a_class, value):
     """ Calls the 'unit' method of 'a_class' with 'value'.  """
