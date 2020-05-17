@@ -63,13 +63,6 @@ class Monad:
         """
         raise NotImplementedError
 
-    def get_value(self):
-        """ Returns the value held by the Container. """
-        return self.value
-
-    def __eq__(self, other):
-        return self.value == other.value
-
     def bind(self, kleisli_function):
         """ Applies 'function' to the result of a previous monadic calculation. """
         raise NotImplementedError
