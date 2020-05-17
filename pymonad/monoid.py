@@ -1,27 +1,43 @@
 # --------------------------------------------------------
-# (c) Copyright 2014 by Jason DeLaat. 
+# (c) Copyright 2014, 2020 by Jason DeLaat.
 # Licensed under BSD 3-clause licence.
 # --------------------------------------------------------
-from pymonad.Reader import curry
+""" Implements the base Monoid type.
+
+A monoid is an algebraic structure consisting of a set of objects, S,
+such as integers; strings; etc., and an operation usually denoted as
+'+' which obeys the following rules:
+  1. Closure: If 'a' and 'b' are in S, then 'a + b' is also in S.
+  2. Identity: There exists an element in S (denoted 0) such that
+     a + 0 = 0 + a = a
+  3. Associativity: (a + b) + c = a + (b + c)
+
+For monoid types, the '+' operation is implemented by the method
+'mplus' and the static method 'mzero' is defined to return the
+identity element of the type.
+
+For example, integers can be monoids in two ways:
+  1. mzero = 0 and mplus = addition
+  2. mzero = 1 and mplus = multiplication
+
+String can also form a monoid where mzero is the empty string and
+mplus is concatenation.
+"""
 
 class Monoid:
-    """
-    Represents a data type which conforms to the following conditions:
-       1. Has an operation (called 'mplus') which combines two values of this type.
-       2. Has a value (called 'mzero') such that mplus(mzero, value) == mplus(value, mzero) = value.
-          In other words, mzero acts as an identity element under the mplus operation.
-       3. mplus is associative: mplus(a, mplus(b, c)) == mplus(mplus(a, b), c)
+    """ Abstract base class for Monoid instances.
 
-       For instance, integers can be monoids in two ways: With mzero = 0 and mplus = + (addition)
-       or with mzero = 1 and mplus = * (multiplication).
-       In the case of strings, mzero = "" (the empty string) and mplus = + (concatenation).
-
+    To implement a monoid instance, users should create a sub-class of
+    Monoid and implement the mzero and mplus methods. Additionally, it
+    is the implementers responsibility to ensure that the
+    implementation adheres to the closure, identity and associativity
+    laws for monoids.
     """
 
     def __init__(self, value):
         """ Initializes the monoid element to 'value'.  """
         self.value = value
-    
+
     def __add__(self, other):
         """ The 'mplus' operator.  """
         return self.mplus(other)
@@ -46,29 +62,31 @@ class Monoid:
         and should meet the following conditions.
            1. x + 0 == 0 + x == x
            2. (x + y) + z == x + (y + z) == x + y + z
-        Where 'x', 'y', and 'z' are monoid values, '0' is the mzero (the identity value) and '+' 
+        Where 'x', 'y', and 'z' are monoid values, '0' is the mzero (the identity value) and '+'
         is mplus.
 
         """
         raise NotImplementedError
 
-@curry
 def mzero(monoid_type):
     """
-    Returns the identity value for monoid_type. Raises TypeError if monoid_type is not a valid monoid.
+    Returns the identity value for monoid_type. Raises TypeError if
+    monoid_type is not a valid monoid.
 
-    There are a number of builtin types that can operate as monoids and they can be used as such
-    as is. These "natural" monoids are: int, float, str, and list.
-    While thee mzero method will work on monoids derived from the Monoid class,
-    this mzero function will work for *all* monoid types, including the "natural" monoids.
-    For this reason it is preferable to call this function rather than calling the mzero method directly
-    unless you know for sure what type of monoid you're dealing with.
+    There are a number of builtin types that can operate as monoids
+    and they can be used as such as is. These "natural" monoids are:
+    int, float, str, and list.  While thee mzero method will work on
+    monoids derived from the Monoid class, this mzero function will
+    work for *all* monoid types, including the "natural" monoids.  For
+    this reason it is preferable to call this function rather than
+    calling the mzero method directly unless you know for sure what
+    type of monoid you're dealing with.
 
     """
     try:
         return monoid_type.mzero()
     except AttributeError:
-        if isinstance(monoid_type, int) or isinstance(monoid_type, float) or monoid_type == int or monoid_type == float:
+        if (isinstance(monoid_type, (int, float)) or monoid_type == int or monoid_type == float): # pylint: disable=no-else-return
             return 0
         elif isinstance(monoid_type, str) or monoid_type == str:
             return ""
@@ -77,7 +95,6 @@ def mzero(monoid_type):
         else:
             raise TypeError(str(monoid_type) + " is not a Monoid.")
 
-@curry
 def mconcat(monoid_list):
     """
     Takes a list of monoid values and reduces them to a single value by applying the
