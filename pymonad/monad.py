@@ -7,8 +7,8 @@
 The Monad base class is an abstract class which defines the operations
 available on all monad instances. To create a new Monad instance,
 users should create a class which inherits from Monad and provides
-implementations for the methods fmap, amap, bind, and class method
-unit. See the documentation for those methods for more information on
+implementations for the methods map, amap, bind, and class method
+insert. See the documentation for those methods for more information on
 how to implement them properly.
 """
 
@@ -31,7 +31,7 @@ class Monad:
         raise NotImplementedError("'fmap' not defined.")
 
     @classmethod
-    def unit(cls, value):
+    def insert(cls, value):
         """ Returns an instance of the Functor with 'value' in a minimum context.  """
         raise NotImplementedError
 
@@ -77,8 +77,4 @@ class Monad:
             result.is_monad_value # pylint: disable=pointless-statement
             return result
         except AttributeError:
-            return self.fmap(function)
-
-def unit(a_class, value):
-    """ Calls the 'unit' method of 'a_class' with 'value'.  """
-    return a_class.unit(value)
+            return self.map(function)
