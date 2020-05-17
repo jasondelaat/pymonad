@@ -76,3 +76,42 @@ Returns:
     A new function which may be partially applied simply by passing
     the desired number of arguments.
 """
+
+def kleisli_compose(function_f, function_g):
+    """ Composes two Kleisli functions.
+
+    Kleisli functions are functions which take as input a 'bare' value
+    and return an 'embellished' value. For instance, if we have a
+    function f which maps a's to b's, it's type is:
+      f :: a -> b
+
+    Then the corresponding Kleisli function, f_kleisli has the type:
+      f_kleisli :: a -> (b, m)
+
+    The type (b, m) corresponds to the internal representation of the
+    Monad class, so in terms of pymonad, a Kleisli function is one
+    which maps values of type a to values of some sub-class of Monad.
+
+      Example:
+        def fail_if_zero(x):
+            return Nothing if x is zero else Just(x)
+
+        def add1(x):
+            return Just(x + 1)
+
+        new_function = kleisli_compose(add1, fail_if_zero)
+        new_function(0) # returns Just(1)
+        new_function(-1) # returns Nothing
+
+    add1 and fail_if_zero are Kleisli functions and new_function is
+    the function which results from first performing add1 followed by
+    fail_if_zero.
+
+    Args:
+      function_f: a function with type: a -> (b, m)
+      function_g: a function with type: b -> (c, m)
+
+    Returns:
+      A new Kleisli function with type: a -> (c, m)
+    """
+    return lambda a: function_f(a).bind(function_g)
