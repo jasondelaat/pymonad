@@ -47,7 +47,7 @@ class Monad:
         self.monoid = monoid
         self.is_monad_value = True
 
-    def fmap(self, function):
+    def map(self, function):
         """ Applies 'function' to the contents of the functor and returns a new functor value. """
         raise NotImplementedError("'fmap' not defined.")
 
