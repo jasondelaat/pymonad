@@ -21,33 +21,12 @@ class Monad:
     while maintaining the context of that specific monad.
 
     """
-    def __init__(self, value, monoid):
-        """ Initializes the internal values of the monad instance.
-
-        All monads can be expressed as a tuple, (a, m). Representing
-        all monads internally in this canonical form allows for some
-        interesting effects such as easily aliasing existing monads
-        instances and, if desired, adding operators. Occasionally it
-        also makes implementation of the monad methods itself easier.
-
-        Args:
-          value: if we think of monads as storing some data of
-            interest plus some 'meta data', then 'value' is the data of
-            interest. Exactly what 'value' is/means will depend on the
-            specific context of the monad in question.
-          monoid: this is the 'meta data' part. While implementers may
-            use an instance of the Monoid class here it is not
-            required. However, the value passed in here should be a type
-            that can be treated as a monoid, such as integers; strings;
-            lists; etc., in order to ensure that the monad laws are
-            obeyed. This is not enforced but it will result in an
-            incorrect implementation.
-        """
+    def __init__(self, value):
+        """ Wraps 'value' in the Monad's context. """
         self.value = value
-        self.monoid = monoid
         self.is_monad_value = True
 
-    def fmap(self, function):
+    def map(self, function):
         """ Applies 'function' to the contents of the functor and returns a new functor value. """
         raise NotImplementedError("'fmap' not defined.")
 
@@ -84,13 +63,13 @@ class Monad:
         instead.
 
         Args:
-          function: A python function or lambda expression
-            which returns either a build-in type (int, string,
-            etc.) or an appropriate monad type (Maybe, Either,
-            etc.)
+        function: A python function or lambda expression
+        which returns either a build-in type (int, string,
+        etc.) or an appropriate monad type (Maybe, Either,
+        etc.)
 
         Returns:
-          A monad value of the same type as 'self'
+        A monad value of the same type as 'self'
         """
 
         result = self.bind(function)
