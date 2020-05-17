@@ -8,15 +8,47 @@ import pymonad.tools
 from pymonad.maybe import Maybe, Just, Nothing
 
 curry = pymonad.tools.curry
-compose = pymonad.tools.kleisli_compose
+k_compose = pymonad.tools.kleisli_compose
+
+def compose(f, g):
+    return lambda x: g(f(x))
 
 def add(x): return Just(x + 1)
 def mul(x): return Just(x * 2)
 def sub(x): return Just(x - 3)
+def identity(x): return x
+
+def inc(x): return x + 1
 
 @curry(2)
 def div(y, x):
     return Nothing if y is 0 else Just(x / y)
+
+class FunctorLaws(unittest.TestCase):
+    def setUp(self):
+        self.input_value = 1
+
+    def test_LeftIdentity(self):
+        result1 = compose(identity, Maybe.insert)(self.input_value)
+        result2 = Maybe.insert(self.input_value)
+        self.assertEqual(result1, result2)
+
+    def test_RightIdentity(self):
+        result1 = Maybe.insert(self.input_value)
+        result2 = compose(Maybe.insert, identity)(self.input_value)
+        self.assertEqual(result1, result2)
+
+    def test_Mapping(self):
+        result1 = Maybe.insert(self.input_value).map(str)
+        result2 = Maybe.insert(str(self.input_value))
+        self.assertEqual(result1, result2)
+
+    def test_Composability(self):
+        f_inc = lambda a: Maybe.insert(a).map(inc)
+        f_str = lambda a: Maybe.insert(a).map(str)
+        result1 = Maybe.insert(compose(inc, str)(self.input_value))
+        result2 = k_compose(f_inc, f_str)(self.input_value)
+        self.assertEqual(result1, result2)
 
 class MonadLaws(unittest.TestCase):
     def setUp(self):
@@ -24,31 +56,30 @@ class MonadLaws(unittest.TestCase):
 
     def test_LeftIdentity_Just(self):
         result1 = add(self.input_value)
-        result2 = compose(Maybe.insert, add)(self.input_value)
+        result2 = k_compose(Maybe.insert, add)(self.input_value)
         self.assertEqual(result1, result2)
 
     def test_RightIdentity_Just(self):
         result1 = add(self.input_value)
-        result2 = compose(add, Maybe.insert)(self.input_value)
+        result2 = k_compose(add, Maybe.insert)(self.input_value)
         self.assertEqual(result1, result2)
 
     def test_Associativity_Just(self):
-        result1 = compose(compose(add, mul), sub)(self.input_value)
-        result2 = compose(add, compose(mul, sub))(self.input_value)
+        result1 = k_compose(k_compose(add, mul), sub)(self.input_value)
+        result2 = k_compose(add, k_compose(mul, sub))(self.input_value)
         self.assertEqual(result1, result2)
 
     def test_LeftIdentity_Nothing(self):
         result1 = div(0, self.input_value)
-        result2 = compose(Maybe.insert, div(0))(self.input_value)
+        result2 = k_compose(Maybe.insert, div(0))(self.input_value)
         self.assertEqual(result1, result2)
 
     def test_Rightdentity_Nothing(self):
         result1 = div(0, self.input_value)
-        result2 = compose(div(0), Maybe.insert)(self.input_value)
+        result2 = k_compose(div(0), Maybe.insert)(self.input_value)
         self.assertEqual(result1, result2)
 
     def test_Associativity_Nothing(self):
-        result1 = compose(compose(add, div(0)), sub)(self.input_value)
-        result2 = compose(add, compose(div(0), sub))(self.input_value)
+        result1 = k_compose(k_compose(add, div(0)), sub)(self.input_value)
+        result2 = k_compose(add, k_compose(div(0), sub))(self.input_value)
         self.assertEqual(result1, result2)
-
