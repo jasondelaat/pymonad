@@ -56,7 +56,7 @@ class Monad:
         """ Returns an instance of the Functor with 'value' in a minimum context.  """
         raise NotImplementedError
 
-    def amap(self, functor_value):
+    def amap(self, monad_value):
         """ Applies the function stored in the functor to the value inside 'functor_value'
         returning a new functor value.
 
@@ -70,7 +70,7 @@ class Monad:
     def __eq__(self, other):
         return self.value == other.value
 
-    def bind(self, function):
+    def bind(self, kleisli_function):
         """ Applies 'function' to the result of a previous monadic calculation. """
         raise NotImplementedError
 
