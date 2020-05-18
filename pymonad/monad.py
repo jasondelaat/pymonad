@@ -92,3 +92,50 @@ class Monad:
             return result
         except AttributeError:
             return self.map(function)
+
+    @classmethod
+    def apply(cls, function):
+        """ Supplies a cleaner interface for applicative functor/amap usage.
+
+        Example:
+          @curry(2)
+          def add(a, b): return a + b
+
+          x = Just(1)
+          y = Just(2)
+
+          (Maybe.apply(add)
+                .to_arguments(x, y)
+          ) # results in Just(3)
+
+        Args:
+          function: A regular function which returns non-monadic values.
+
+        Returns:
+          A monad object based on the input class with the wrapped
+          function and a new method, 'to_arguments' which will apply
+          the function.
+        """
+        class _Applicative(cls):
+            """ An internal class which provides the 'to_arguments' method. """
+            amap = cls.amap
+            bind = cls.bind
+            insert = cls.insert
+            map = cls.map
+            def to_arguments(self, *args):
+                """ Applies arguments to the function wrapped by the call to the apply method.
+
+                Args:
+                  *args: a variable number of arguments to be supplied
+                     to the function wrapped by a previous call to the
+                     'apply method.
+
+                Returns:
+                  A monadic value of type 'cls'
+                """
+                result = self
+                for arg in args:
+                    result = result.amap(arg)
+                return cls(result.value, result.monoid)
+
+        return _Applicative(function, True)

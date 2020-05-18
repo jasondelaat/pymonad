@@ -146,3 +146,10 @@ class MiscTests(unittest.TestCase):
     def test_CallingThenWithErrorFunction(self):
         self.assertEqual(Nothing, Just(0).then(error))
 
+    def test_ApplySyntax(self):
+        self.assertEqual(Just(9), Maybe.apply(plus).to_arguments(Just(4), Just(5)))
+
+    def test_ApplyWithErrors(self):
+        self.assertEqual(Nothing, Maybe.apply(error).to_arguments(Just(0)))
+        
+        
