@@ -36,7 +36,10 @@ class Maybe(pymonad.monad.Monad):
         if self.monoid is False: #pylint: disable=no-else-return
             return self
         else:
-            return Just(function(self.value))
+            try:
+                return Just(function(self.value))
+            except: # pylint: disable=bare-except
+                return Nothing
 
     def amap(self, monad_value):
         """ See Monad.amap"""
@@ -50,7 +53,10 @@ class Maybe(pymonad.monad.Monad):
         if self.monoid is False: #pylint: disable=no-else-return
             return self
         else:
-            return kleisli_function(self.value)
+            try:
+                return kleisli_function(self.value)
+            except: # pylint: disable=bare-except
+                return Nothing
 
     def __eq__(self, other):
         """ Checks equality of Maybe objects.

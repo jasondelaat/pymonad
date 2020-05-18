@@ -32,6 +32,9 @@ def plus(x, y):
 def minus(x, y):
     return x - y
 
+def error(x):
+    raise TypeError
+
 class FunctorLaws(unittest.TestCase):
     def setUp(self):
         self.input_value = 1
@@ -124,6 +127,22 @@ class MiscTests(unittest.TestCase):
 
     def test_repr_Nothing(self):
         self.assertEqual(str(Nothing), 'Nothing')
-        
 
+    def test_MappingFunctionThatRaisesErrors(self):
+        self.assertEqual(Nothing, Just(0).map(error))
+
+    def test_AmappingFunctionThatRaisesErrors(self):
+        self.assertEqual(Nothing, Just(error).amap(Just(0)))
+
+    def test_BindingFunctionThatRaisesErrors(self):
+        self.assertEqual(Nothing, Just(0).bind(error))
+
+    def test_CallingThenWithBareFunction(self):
+        self.assertEqual(Just(1), Maybe.insert(0).then(inc))
+
+    def test_CallingThenWithMonadFunction(self):
+        self.assertEqual(Just(1), Maybe.insert(0).then(add))
+
+    def test_CallingThenWithErrorFunction(self):
+        self.assertEqual(Nothing, Just(0).then(error))
 
