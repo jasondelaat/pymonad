@@ -40,7 +40,10 @@ class Maybe(pymonad.monad.Monad):
 
     def amap(self, monad_value):
         """ See Monad.amap"""
-        pass
+        if self.monoid == False or monad_value.monoid == False:
+            return self
+        else:
+            return monad_value.map(self.value)
 
     def bind(self, kleisli_function):
         """ See Monad.bind """

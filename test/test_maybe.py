@@ -24,6 +24,14 @@ def inc(x): return x + 1
 def div(y, x):
     return Nothing if y is 0 else Just(x / y)
 
+@curry(2)
+def plus(x, y):
+    return x + y
+
+@curry(2)
+def minus(x, y):
+    return x - y
+
 class FunctorLaws(unittest.TestCase):
     def setUp(self):
         self.input_value = 1
@@ -50,6 +58,32 @@ class FunctorLaws(unittest.TestCase):
         result2 = k_compose(f_inc, f_str)(self.input_value)
         self.assertEqual(result1, result2)
 
+class ApplicativeLaws(unittest.TestCase):
+    def test_ApplyMap_MapApply(self):
+        result1 = Maybe.insert(inc(1))
+        result2 = Maybe.insert(inc).amap(Maybe.insert(1))
+        self.assertEqual(result1, result2)
+
+    def test_Associativity(self):
+        result1 = Maybe.insert(plus).amap(Maybe.insert(1)).amap(Maybe.insert(2))
+        result2 = (Maybe.insert(lambda args: plus(args[0], args[1]))
+                   .amap(Maybe.insert(lambda b: (1, b))
+                         .amap(Maybe.insert(2)))
+                   )
+        self.assertEqual(result1, result2)
+
+    def test_Map_vs_Amap(self):
+        result1 = Maybe.insert(inc).amap(Maybe.insert(1))
+        result2 = Maybe.insert(1).map(inc)
+        self.assertEqual(result1, result2)
+
+    def test_AllPathsCommute(self):
+        result1 = Maybe.insert(plus(1, 2))
+        result2 = Maybe.insert(plus(1)).amap(Maybe.insert(2))
+        result3 = Maybe.insert(plus).amap(Maybe.insert(1)).amap(Maybe.insert(2))
+        self.assertEqual(result1, result2)
+        self.assertEqual(result3, result2)
+    
 class MonadLaws(unittest.TestCase):
     def setUp(self):
         self.input_value = 1
