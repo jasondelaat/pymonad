@@ -70,7 +70,7 @@ class ApplicativeLaws(unittest.TestCase):
 
     def test_Associativity(self):
         result1 = Maybe.insert(plus).amap(Maybe.insert(1)).amap(Maybe.insert(2))
-        result2 = (Maybe.insert(lambda args: plus(args[0], args[1]))
+        result2 = (Maybe.insert(lambda args: plus(*args))
                    .amap(Maybe.insert(lambda b: (1, b))
                          .amap(Maybe.insert(2)))
                    )
