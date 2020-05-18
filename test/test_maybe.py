@@ -117,3 +117,13 @@ class MonadLaws(unittest.TestCase):
         result1 = k_compose(k_compose(add, div(0)), sub)(self.input_value)
         result2 = k_compose(add, k_compose(div(0), sub))(self.input_value)
         self.assertEqual(result1, result2)
+
+class MiscTests(unittest.TestCase):
+    def test_repr_Just(self):
+        self.assertEqual(str(Just(9)), 'Just 9')
+
+    def test_repr_Nothing(self):
+        self.assertEqual(str(Nothing), 'Nothing')
+        
+
+

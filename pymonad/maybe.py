@@ -40,7 +40,7 @@ class Maybe(pymonad.monad.Monad):
 
     def amap(self, monad_value):
         """ See Monad.amap"""
-        if self.monoid == False or monad_value.monoid == False:
+        if not self.monoid or not monad_value.monoid: #pylint: disable=no-else-return
             return self
         else:
             return monad_value.map(self.value)
@@ -62,7 +62,8 @@ class Maybe(pymonad.monad.Monad):
         """
         return self.value == other.value and self.monoid == other.monoid
 
-
+    def __repr__(self):
+        return f'Just {self.value}' if self.monoid else 'Nothing'
 
 def Just(value): # pylint: disable=invalid-name
     """ A Maybe object representing the presence of an optional value. """
