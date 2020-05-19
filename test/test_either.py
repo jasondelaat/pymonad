@@ -20,6 +20,10 @@ class EitherFunctor(common_tests.FunctorTests, unittest.TestCase):
     def setUp(self):
         self._class = Either
 
+class EitherApplicative(common_tests.ApplicativeTests, unittest.TestCase):
+    def setUp(self):
+        self._class = Either
+
 class EitherMonad(common_tests.MonadTests, unittest.TestCase):
     def setUp(self):
         self._class = Either
