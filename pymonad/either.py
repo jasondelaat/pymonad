@@ -25,6 +25,15 @@ class Either(pymonad.monad.Monad):
     def insert(cls, value):
         return Right(value)
 
+    def bind(self, kleisli_function):
+        if self.is_left():
+            return self
+        else:
+            try:
+                return kleisli_function(self.value)
+            except Exception as e:
+                return Left(e)
+
     def map(self, function):
         if self.is_left():
             return self
