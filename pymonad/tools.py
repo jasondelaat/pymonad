@@ -115,3 +115,7 @@ def kleisli_compose(function_f, function_g):
       A new Kleisli function with type: a -> (c, m)
     """
     return lambda a: function_f(a).bind(function_g)
+
+def identity(value):
+    """ Returns it's input value unchanged. """
+    return value
