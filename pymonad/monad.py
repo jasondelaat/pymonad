@@ -86,8 +86,8 @@ class Monad:
           A monad value of the same type as 'self'
         """
 
-        result = self.bind(function)
         try:
+            result = self.bind(function)
             result.is_monad_value # pylint: disable=pointless-statement
             return result
         except AttributeError:
