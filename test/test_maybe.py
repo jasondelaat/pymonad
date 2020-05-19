@@ -6,6 +6,7 @@ import unittest
 
 import pymonad.tools
 from pymonad.maybe import Maybe, Just, Nothing
+from pymonad.maybe import Option, Some
 
 curry = pymonad.tools.curry
 k_compose = pymonad.tools.kleisli_compose
@@ -125,6 +126,24 @@ class MiscTests(unittest.TestCase):
     def test_repr_Just(self):
         self.assertEqual(str(Just(9)), 'Just 9')
 
+    def test_repr_OptionAlias(self):
+        self.assertEqual(str(Some(9)), 'Some 9')
+
+    def test_OptionWithMaybeFunction_bind(self):
+        result = Option.insert(1).then(add)
+        self.assertEqual(result, Some(2))
+        self.assertEqual(str(result), 'Some 2')
+
+    def test_OptionWithMaybeFunction_map(self):
+        result = Option.insert(1).then(plus(1))
+        self.assertEqual(result, Some(2))
+        self.assertEqual(str(result), 'Some 2')
+
+    def test_OptionWithMaybeFunction_amap(self):
+        result = Option.apply(plus).to_arguments(Some(1), Some(2))
+        self.assertEqual(result, Some(3))
+        self.assertEqual(str(result), 'Some 3')
+
     def test_repr_Nothing(self):
         self.assertEqual(str(Nothing), 'Nothing')
 
@@ -151,5 +170,6 @@ class MiscTests(unittest.TestCase):
 
     def test_ApplyWithErrors(self):
         self.assertEqual(Nothing, Maybe.apply(error).to_arguments(Just(0)))
+
         
         
