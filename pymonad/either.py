@@ -61,3 +61,15 @@ def Right(value): # pylint: disable=invalid-name
 
 def Left(value): # pylint: disable=invalid-name
     return Either(None, (value, False))
+
+class _Error(pymonad.monad.MonadAlias, Either):
+    def __repr__(self):
+        return f'Result: {self.value}' if self.is_right() else f'Error: {self.monoid[0]}'
+
+def Result(value):
+    return _Error(value, (None, True))
+
+def Error(value):
+    return _Error(None, (value, False))
+
+Error.insert = _Error.insert
