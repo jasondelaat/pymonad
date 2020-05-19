@@ -32,6 +32,34 @@ def k_dec(cls, x):
 def k_dbl(cls, x):
     return cls.insert(2*x)
 
+class ApplicativeTests:
+    def setUp(self):
+        raise NotImplementedError('ApplicativeTests: You need to set self._class to the monad class being tested.')
+
+    def test_application_is_homomorphic(self):
+        f = add(1)
+        self.assertEqual(
+            self._class.insert(f(2)),
+            self._class.apply(f).to_arguments(self._class.insert(2))
+        )
+
+    def test_application_is_same_as_mapping(self):
+        f = add(1)
+        self.assertEqual(
+            self._class.apply(f).to_arguments(self._class.insert(2)),
+            self._class.insert(2).map(f)
+        )
+
+    def test_application_is_associative(self):
+        self.assertEqual(
+            self._class.apply(add).to_arguments(
+                self._class.insert(1),
+                self._class.insert(2)),
+            self._class.apply(lambda args: add(*args)).to_arguments(
+                self._class.apply(lambda b: (1, b)).to_arguments(self._class.insert(2))
+            )
+        )
+
 class MonadTests:
     def setUp(self):
         raise NotImplementedError('MonadTests: You need to set self._class to the monad class being tested.')
