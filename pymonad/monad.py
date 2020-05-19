@@ -59,9 +59,8 @@ class Monad:
     def amap(self, monad_value):
         """ Applies the function stored in the functor to the value inside 'functor_value'
         returning a new functor value.
-
         """
-        raise NotImplementedError
+        return monad_value.map(self.value)
 
     def bind(self, kleisli_function):
         """ Applies 'function' to the result of a previous monadic calculation. """
