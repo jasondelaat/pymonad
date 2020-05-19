@@ -4,7 +4,9 @@
 # --------------------------------------------------------
 import unittest
 
+from common_tests import FunctorTests
 from pymonad.either import Either, Left, Right
+
 
 class EitherTests(unittest.TestCase):
     def test_repr(self):
@@ -13,3 +15,7 @@ class EitherTests(unittest.TestCase):
 
     def test_insert(self):
         self.assertEqual(Either.insert(1), Right(1))
+
+class EitherFunctor(FunctorTests, unittest.TestCase):
+    def setUp(self):
+        self._class = Either

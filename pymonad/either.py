@@ -24,9 +24,22 @@ class Either(pymonad.monad.Monad):
     @classmethod
     def insert(cls, value):
         return Right(value)
+
+    def map(self, function):
+        if self.is_left():
+            return self
+        else:
+            try:
+                return Right(function(self.value))
+            except Exception as e:
+                return Left(e)
     
     def is_right(self):
         return self.monoid[1]
+
+    def is_left(self):
+        return not self.monoid[1]
+
 
     def __eq__(self, other):
         return self.value == other.value and self.monoid == other.monoid
