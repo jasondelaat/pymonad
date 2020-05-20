@@ -4,7 +4,7 @@
 # --------------------------------------------------------
 """ Implements the State monad. """
 
-import pymonad
+import pymonad.monad
 
 class _State(pymonad.monad.Monad):
     @classmethod
