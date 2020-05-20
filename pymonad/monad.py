@@ -138,7 +138,7 @@ class Monad:
                     result = result.amap(arg)
                 return cls(result.value, result.monoid)
 
-        return _Applicative(None, None)
+        return _Applicative(None, None) # We don't actually care about the inputs here
 
 class MonadAlias(Monad):
     """ Provides monad method overrides which make it easy to give a monad an alias.
