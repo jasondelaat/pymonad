@@ -132,7 +132,7 @@ class Monad:
                 Returns:
                   A monadic value of type 'cls'
                 """
-                result = self
+                result = cls.insert(function)
                 for arg in args:
                     result = result.amap(arg)
                 return cls(result.value, result.monoid)
