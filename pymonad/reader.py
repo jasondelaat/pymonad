@@ -2,6 +2,12 @@
 # (c) Copyright 2014, 2020 by Jason DeLaat.
 # Licensed under BSD 3-clause licence.
 # --------------------------------------------------------
+""" Implements the Reader monad.
+
+The Reader monad creates a context in which functions have access to
+an additional read-only input.
+"""
+
 import pymonad
 
 class _Reader(pymonad.monad.Monad):
@@ -22,6 +28,15 @@ class _Reader(pymonad.monad.Monad):
         return self.value(arg)
 
 def Reader(function): # pylint: disable=invalid-name
+    """ Creates an instance of the Reader monad.
+
+    Args:
+      function: a function which takes the read-only data as input and
+        returns any appropriate type.
+
+    Result:
+      An instance of the Reader monad.
+    """
     return _Reader(function, None)
 
 Reader.insert = _Reader.insert
