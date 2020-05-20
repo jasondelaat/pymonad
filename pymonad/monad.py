@@ -121,7 +121,8 @@ class Monad:
             bind = cls.bind
             insert = cls.insert
             map = cls.map
-            def to_arguments(self, *args):
+            @staticmethod
+            def to_arguments(*args):
                 """ Applies arguments to the function wrapped by the call to the apply method.
 
                 Args:
@@ -132,12 +133,12 @@ class Monad:
                 Returns:
                   A monadic value of type 'cls'
                 """
-                result = self
+                result = cls.insert(function)
                 for arg in args:
                     result = result.amap(arg)
                 return cls(result.value, result.monoid)
 
-        return _Applicative(function, True)
+        return _Applicative(None, None) # We don't actually care about the inputs here
 
 class MonadAlias(Monad):
     """ Provides monad method overrides which make it easy to give a monad an alias.
