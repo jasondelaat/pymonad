@@ -33,3 +33,7 @@ class StateApplicative(common_tests.ApplicativeTests, unittest.TestCase):
 class StateMonad(common_tests.MonadTests, unittest.TestCase):
     def setUp(self):
         self._class = EqState
+
+class StateThen(common_tests.ThenTests, unittest.TestCase):
+    def setUp(self):
+        self._class = EqState

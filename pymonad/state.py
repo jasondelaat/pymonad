@@ -5,6 +5,22 @@
 """ Implements the State monad. """
 
 import pymonad.monad
+import pymonad.tools
+
+@pymonad.tools.curry(3)
+def _bind(monad_value, kleisli_function, state):
+    return kleisli_function(monad_value.value(state)).run(monad_value.monoid(state))
+
+@pymonad.tools.curry(3)
+def _map(monad_value, function, state):
+    return (function(monad_value.value(state)), monad_value.monoid(state))
+
+@pymonad.tools.curry(3)
+def _bind_or_map(monad_value, function, state):
+    try:
+        return _bind(monad_value, function, state)
+    except AttributeError:
+        return _map(monad_value, function, state)
 
 class _State(pymonad.monad.Monad):
     @classmethod
@@ -20,11 +36,11 @@ class _State(pymonad.monad.Monad):
 
     def bind(self, kleisli_function):
         """ See Monad.bind. """
-        return State(lambda s: kleisli_function(self.value(s)).run(self.monoid(s)))
+        return State(_bind(self, kleisli_function)) # pylint: disable=no-value-for-parameter
 
     def map(self, function):
         """ See Monad.map. """
-        return State(lambda s: (function(self.value(s)), self.monoid(s)))
+        return State(_map(self, function)) # pylint: disable=no-value-for-parameter
 
     def run(self, input_state):
         """ Gives the state calculation an initial state and computes the result.
@@ -37,6 +53,9 @@ class _State(pymonad.monad.Monad):
           and the final state.
         """
         return self.value(input_state), self.monoid(input_state)
+
+    def then(self, function):
+        return State(_bind_or_map(self, function)) # pylint: disable=no-value-for-parameter
 
 def State(state_function): # pylint: disable=invalid-name
     """ The State monad constructor function.
