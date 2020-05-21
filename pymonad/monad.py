@@ -184,3 +184,7 @@ class MonadAlias(Monad):
     def bind(self, kleisli_function):
         result = super().bind(kleisli_function)
         return self.__class__(result.value, result.monoid)
+
+    def then(self, function):
+        result = super().then(function)
+        return self.__class__(result.value, result.monoid)
