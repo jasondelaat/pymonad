@@ -91,3 +91,54 @@ def Compose(function): # pylint: disable=invalid-name
     operations happen first and then the 'dec' and not vice-versa.
     """
     return _Reader(function, None)
+
+
+
+
+
+
+class _Pipe(pymonad.monad.MonadAlias, _Reader):
+    def __pos__(self):
+        return self.flush()
+
+    def flush(self):
+        """ Calls the composed Pipe function returning  the embedded result.
+
+        The 'flush' method calls the composed function with dummy
+        input since all functions in a Pipe chain should ignore that
+        input anyway, simply joining inputs to outputs.
+        """
+        return self(None)
+
+def Pipe(value): # pylint: disable=invalid-name
+    """ Creates an instance of the Pipe monad.
+
+    Pipe is basically an alias for the Reader monad except with the
+    insert and apply methods removed. It's purpose is simply to
+    provide a semantically meaningful monad instance to be used
+    specifically for the purpose of chaining function calls by taking
+    the output of one function as the input to the next.
+
+    Since Pipe is a subclass of Reader it's really building a function
+    but, semantically, pipes start with some input and end with a
+    result. For this reason, Pipe adds a 'flush' method which calls
+    the composed function with dummy input (which will be ignored) and
+    simply returns the embedded result. Optionally, you can instead
+    use the unary '+' operator instead of 'flush' to do the same
+    thing.
+
+      Example:
+        def inc(x): return x + 1
+
+        pipe_with_flush = (Pipe(0)
+                          .then(inc)
+                          .then(inc)
+                          .flush())
+
+        pipe_with_plus = +(Pipe(0)
+                           .then(inc)
+                           .then(inc))
+
+        pipe_with_flush == pipe_with_plus # True
+    """
+    return _Pipe.insert(value)
