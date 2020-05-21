@@ -60,3 +60,34 @@ def Reader(function): # pylint: disable=invalid-name
 
 Reader.insert = _Reader.insert
 Reader.apply = _Reader.apply
+
+
+
+
+
+def Compose(function): # pylint: disable=invalid-name
+    """ Creates an instance of the Compose monad.
+
+    Compose is basically an alias for the Reader monad except with the
+    insert and apply methods removed. It's purpose is simply to
+    provide a semantically meaningful monad instance to be used
+    specifically for the purpose of function composition.
+
+      Example:
+        def inc(x): return x + 1
+        def dec(x): return x - 1
+
+        convoluted_inc_twice = (Compose(inc)
+                                .then(inc)
+                                .then(inc)
+                                .then(dec))
+
+        convoluted_inc_twice(0) # Result: 2
+
+    Technically, 'convoluted_inc_twice' is an instance of the Reader
+    monad but since Reader defines the __call__ method, we can treat
+    it just like a function for all intents and purposes. The Compose
+    monad composes functions forward. In the example, the three 'inc'
+    operations happen first and then the 'dec' and not vice-versa.
+    """
+    return _Reader(function, None)
