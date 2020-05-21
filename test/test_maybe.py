@@ -41,3 +41,6 @@ class MaybeMonad(common_tests.MonadTests, unittest.TestCase):
     def setUp(self):
         self._class = Maybe
 
+class MaybeThen(common_tests.ThenTests, unittest.TestCase):
+    def setUp(self):
+        self._class = Maybe

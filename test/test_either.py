@@ -37,3 +37,7 @@ class EitherApplicative(common_tests.ApplicativeTests, unittest.TestCase):
 class EitherMonad(common_tests.MonadTests, unittest.TestCase):
     def setUp(self):
         self._class = Either
+
+class EitherThen(common_tests.ThenTests, unittest.TestCase):
+    def setUp(self):
+        self._class = Either

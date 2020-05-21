@@ -35,3 +35,7 @@ class WriterApplicative(common_tests.ApplicativeTests, unittest.TestCase):
 class WriterMonad(common_tests.MonadTests, unittest.TestCase):
     def setUp(self):
         self._class = Writer
+
+class WriterThen(common_tests.ThenTests, unittest.TestCase):
+    def setUp(self):
+        self._class = Writer

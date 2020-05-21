@@ -71,3 +71,7 @@ class ReaderApplicative(common_tests.ApplicativeTests, unittest.TestCase):
 class ReaderMonad(common_tests.MonadTests, unittest.TestCase):
     def setUp(self):
         self._class = EqReader
+
+class ReaderThen(common_tests.ThenTests, unittest.TestCase):
+    def setUp(self):
+        self._class = EqReader
