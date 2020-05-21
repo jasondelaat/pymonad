@@ -108,3 +108,20 @@ class FunctorTests:
             self._class.insert(1).map(lambda x: sub(2, add(1, x))),
             self._class.insert(1).map(add(1)).map(sub(2))
         )
+
+class ThenTests:
+    def setUp(self):
+        raise NotImplementedError('FunctorTests: You need to set self._class to the monad class being tested.')
+
+    def test_then_with_normal_function(self):
+        self.assertEqual(
+            self._class.insert(0).then(add(1)),
+            self._class.insert(1)
+        )
+
+    def test_then_with_kleisli_function(self):
+        self.assertEqual(
+            self._class.insert(0).then(k_inc(self._class)),
+            k_inc(self._class, 0)
+        )
+
