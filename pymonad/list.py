@@ -39,6 +39,12 @@ class _List(pymonad.monad.Monad):
         """ Flattens a nested ListMonad instance one level. """
         return ListMonad(*[element for lists in self for element in lists])
 
+    def then(self, function):
+        try:
+            return self.bind(function)
+        except TypeError:
+            return self.map(function)
+
     def __eq__(self, other):
         return list(self) == list(other)
 
