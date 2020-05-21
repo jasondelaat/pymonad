@@ -8,7 +8,23 @@ The Reader monad creates a context in which functions have access to
 an additional read-only input.
 """
 
-import pymonad
+import pymonad.monad
+import pymonad.tools
+
+@pymonad.tools.curry(3)
+def _bind_or_map(function_f, function_g, read_only):
+    try:
+        return _bind(function_f, function_g, read_only)
+    except TypeError:
+        return _map(function_f, function_g, read_only)
+
+@pymonad.tools.curry(3)
+def _bind(function_f, function_g, read_only):
+    return function_f(function_g(read_only))(read_only)
+
+@pymonad.tools.curry(3)
+def _map(function_f, function_g, read_only):
+    return function_f(function_g(read_only))
 
 class _Reader(pymonad.monad.Monad):
     @classmethod
@@ -19,10 +35,13 @@ class _Reader(pymonad.monad.Monad):
         return Reader(lambda r: self(r)(monad_value(r)))
 
     def bind(self, kleisli_function):
-        return Reader(lambda r: kleisli_function(self(r))(r)) #pylint: disable=unnecessary-lambda
+        return Reader(_bind(kleisli_function, self)) # pylint: disable=no-value-for-parameter
 
     def map(self, function):
-        return Reader(lambda r: function(self(r)))
+        return Reader(_map(function, self)) # pylint: disable=no-value-for-parameter
+
+    def then(self, function):
+        return Reader(_bind_or_map(function, self)) # pylint: disable=no-value-for-parameter
 
     def __call__(self, arg):
         return self.value(arg)
