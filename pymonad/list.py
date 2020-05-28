@@ -24,11 +24,18 @@ move.
 """
 import pymonad.monad
 
-class _List(pymonad.monad.Monad):
+class _List(pymonad.monad.Monad, list):
     @classmethod
     def insert(cls, value):
         return ListMonad(value)
 
+    def amap(self, monad_value):
+        result = []
+        for f in self:
+            for v in monad_value:
+                result.append(f(v))
+        return ListMonad(*result)
+    
     def bind(self, kleisli_function):
         return self.map(kleisli_function).join()
 
@@ -46,14 +53,13 @@ class _List(pymonad.monad.Monad):
             return self.map(function)
 
     def __eq__(self, other):
-        return list(self) == list(other)
+        return self.value == other.value
 
     def __iter__(self):
-        yield self.value
-        yield from self.monoid
+        return iter(self.value)
 
     def __repr__(self):
-        return str(list(self))
+        return str(self.value)
 
 def ListMonad(*elements): # pylint: disable=invalid-name
     """ Creates an instance of the List monad.
@@ -64,10 +70,8 @@ def ListMonad(*elements): # pylint: disable=invalid-name
     Returns:
       An instance of the List monad.
     """
-    def _list_internal():
-        yield from elements[1:]
 
-    return _List(elements[0], _list_internal())
+    return _List(list(elements), None)
 
 ListMonad.insert = _List.insert
 ListMonad.apply = _List.apply
