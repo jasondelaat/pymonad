@@ -3,6 +3,7 @@
 # Licensed under BSD 3-clause licence.
 # --------------------------------------------------------
 import pymonad.tools
+import pymonad.operators.reader
 
 id = pymonad.tools.identity
 curry = pymonad.tools.curry
@@ -125,3 +126,82 @@ class ThenTests:
             k_inc(self._class, 0)
         )
 
+
+class FunctorOperatorTests:
+    def setUp(self):
+        raise NotImplementedError('FunctorTests: You need to set self._class to the monad class being tested.')
+
+    def test_left_identity(self):
+        self.assertEqual(self._class.insert(id(1)), self._class.insert(1))
+
+    def test_rightidentity(self):
+        self.assertEqual(id(self._class.insert(1)), self._class.insert(1))
+
+    def test_apply_then_insert(self):
+        self.assertEqual(
+            add(1) * self._class.insert(1),
+            self._class.insert(add(1, 1))
+        )
+
+    def test_composition(self):
+        # To compose functions with operators we need to explicitly
+        # wrap them in the pymonad.operators.reader.Reader
+        # constructor. Here we do that directly, in actual code using
+        # @Reader as a decorator would be cleaner.
+        self.assertEqual(
+            sub(2) * (add(1) * self._class.insert(1)),
+            sub(2) * pymonad.operators.reader.Reader(add(1)) * self._class.insert(1)
+        )
+
+
+class ApplicativeOperatorTests:
+    def setUp(self):
+        raise NotImplementedError('ApplicativeTests: You need to set self._class to the monad class being tested.')
+
+    def test_application_is_homomorphic(self):
+        f = add(1)
+        self.assertEqual(
+            self._class.insert(f(2)),
+            self._class.insert(f) & self._class.insert(2)
+        )
+
+    def test_application_is_same_as_mapping(self):
+        f = add(1)
+        self.assertEqual(
+            self._class.apply(f).to_arguments(self._class.insert(2)),
+            f * self._class.insert(2)
+        )
+
+    def test_application_is_associative(self):
+        self.assertEqual(
+            add * self._class.insert(1) & self._class.insert(2),
+            self._class.insert(lambda args: add(*args)) & (self._class.insert(lambda b: (1, b)) & self._class.insert(2))
+        )
+
+
+class MonadOperatorTests:
+    def setUp(self):
+        raise NotImplementedError('MonadTests: You need to set self._class to the monad class being tested.')
+
+    def test_left_identity(self):
+        inc = k_inc(self._class)
+        self.assertEqual(
+            self._class.insert(0) >> inc,
+            inc(0)
+        )
+
+    def test_right_identity(self):
+        inc = k_inc(self._class)
+        self.assertEqual(
+            inc(0) >> self._class.insert,
+            inc(0)
+        )
+
+    def test_associativity(self):
+        inc = k_inc(self._class)
+        dec = k_dec(self._class)
+        dbl = k_dbl(self._class)
+        self.assertEqual(
+            (inc(0) >> dec) >> dbl,
+            inc(0) >> (lambda x: dec(x) >> dbl)
+        )
