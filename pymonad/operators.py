@@ -174,7 +174,7 @@ class _List(MonadOperators, pymonad.list._List): # pylint: disable=protected-acc
     See the MonadOperators class and pymonad.list.
     """
 
-def ListMonad(*elements): # pylint: disable=invalid-name, duplicate-code
+def ListMonad(*elements): # pylint: disable=invalid-name
     """ Creates an instance of the List monad.
 
     Args:
@@ -183,10 +183,8 @@ def ListMonad(*elements): # pylint: disable=invalid-name, duplicate-code
     Returns:
       An instance of the List monad.
     """
-    def _list_internal():
-        yield from elements[1:]
 
-    return _List(elements[0], _list_internal())
+    return _List(list(elements), None)
 
 ListMonad.insert = _List.insert
 ListMonad.apply = _List.apply
