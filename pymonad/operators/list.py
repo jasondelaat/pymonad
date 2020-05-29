@@ -1,0 +1,26 @@
+# --------------------------------------------------------
+# (c) Copyright 2014, 2020 by Jason DeLaat.
+# Licensed under BSD 3-clause licence.
+# --------------------------------------------------------
+""" Adds operators to the List monad. """
+import pymonad.monad
+import pymonad.list
+import pymonad.operators.operators
+
+class _List(pymonad.operators.operators.MonadOperators, pymonad.list._List): # pylint: disable=protected-access
+    """ See pymonad.operators.operators and pymonad.list. """
+
+def ListMonad(*elements): # pylint: disable=invalid-name
+    """ Creates an instance of the List monad.
+
+    Args:
+      *elements: any number of elements to be inserted into the list
+
+    Returns:
+      An instance of the List monad.
+    """
+
+    return _List(list(elements), None)
+
+ListMonad.insert = _List.insert
+ListMonad.apply = _List.apply
