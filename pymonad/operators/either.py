@@ -17,3 +17,23 @@ def Right(value): # pylint: disable=invalid-name
 def Left(value): # pylint: disable=invalid-name
     """ Creates a value of the first possible type in the Either monad. """
     return Either(None, (value, False))
+
+
+
+
+
+
+
+class _Error(Either): # MonadAlias already in MRO from MonadOperators
+    def __repr__(self):
+        return f'Result: {self.value}' if self.is_right() else f'Error: {self.monoid[0]}'
+
+def Result(value): # pylint: disable=invalid-name
+    """ Creates a value representing the successful result of a calculation. """
+    return _Error(value, (None, True))
+
+def Error(value): # pylint: disable=invalid-name
+    """ Creates an error value as the result of a calculation. """
+    return _Error(None, (value, False))
+
+Error.insert = _Error.insert
