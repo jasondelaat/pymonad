@@ -16,3 +16,16 @@ def Just(value): # pylint: disable=invalid-name
 
 # A Maybe object representing the absence of an optional value.
 Nothing = Maybe(None, False) # pylint: disable=invalid-name
+
+
+
+
+
+class Option(Maybe): # MonadAlias already in MRO from MonadOperators
+    """ An alias for the Maybe monad class. """
+    def __repr__(self):
+        return f'Some {self.value}' if self.monoid else 'Nothing'
+
+def Some(value): # pylint: disable=invalid-name
+    """ An Option object representing the presence of an optional value. """
+    return Option(value, True)
