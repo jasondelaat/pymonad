@@ -31,11 +31,11 @@ class _List(pymonad.monad.Monad, list):
 
     def amap(self, monad_value):
         result = []
-        for f in self:
-            for v in monad_value:
-                result.append(f(v))
+        for function in self:
+            for value in monad_value:
+                result.append(function(value))
         return ListMonad(*result)
-    
+
     def bind(self, kleisli_function):
         return self.map(kleisli_function).join()
 
