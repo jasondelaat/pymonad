@@ -44,7 +44,7 @@ class Maybe(pymonad.monad.Monad):
     def amap(self, monad_value):
         """ See Monad.amap"""
         if not self.monoid or not monad_value.monoid: #pylint: disable=no-else-return
-            return self
+            return Nothing
         else:
             return monad_value.map(self.value)
 
