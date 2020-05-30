@@ -55,8 +55,17 @@ class _List(pymonad.monad.Monad, list):
     def __eq__(self, other):
         return self.value == other.value
 
+    def __getitem__(self, index):
+        try:
+            return ListMonad(*self.value.__getitem__(index))
+        except TypeError:
+            return self.value[index]
+
     def __iter__(self):
         return iter(self.value)
+
+    def __len__(self):
+        return len(self.value)
 
     def __repr__(self):
         return str(self.value)

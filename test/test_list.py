@@ -14,6 +14,22 @@ class ListTests(unittest.TestCase):
     def test_insert(self):
         self.assertEqual(ListMonad.insert(1), ListMonad(1))
 
+    def test_indexing(self):
+        self.assertEqual(ListMonad(1, 2, 3)[0], 1)
+        self.assertEqual(ListMonad(1, 2, 3)[1], 2)
+        self.assertEqual(ListMonad(1, 2, 3)[2], 3)
+
+    def test_slicing(self):
+        self.assertEqual(ListMonad(1, 2, 3)[:], ListMonad(1, 2, 3))
+        self.assertEqual(ListMonad(1, 2, 3)[1:], ListMonad(2, 3))
+        self.assertEqual(ListMonad(1, 2, 3)[2:], ListMonad(3))
+
+    def test_slicing_with_step(self):
+        self.assertEqual(ListMonad(1, 2, 3, 4, 5)[::2], ListMonad(1, 3, 5))
+
+    def test_len(self):
+        self.assertEqual(len(ListMonad(1, 2, 3)), 3)
+
 class ListFunctor(common_tests.FunctorTests, unittest.TestCase):
     def setUp(self):
         self._class = ListMonad
