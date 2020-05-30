@@ -30,13 +30,37 @@ class EitherFunctor(common_tests.FunctorTests, unittest.TestCase):
     def setUp(self):
         self._class = Either
 
+    def test_mapping_over_left(self):
+        self.assertEqual(
+            Left('').map(lambda x: x),
+            Left('')
+        )
+
 class EitherApplicative(common_tests.ApplicativeTests, unittest.TestCase):
     def setUp(self):
         self._class = Either
 
+    def test_applying_with_left_in_first_arg(self):
+        self.assertEqual(
+            Either.apply(common_tests.add).to_arguments(Left(''), Right(1)),
+            Left('')
+        )
+
+    def test_applying_with_left_in_second_arg(self):
+        self.assertEqual(
+            Either.apply(common_tests.add).to_arguments(Right(1), Left('')),
+            Left('')
+        )
+
 class EitherMonad(common_tests.MonadTests, unittest.TestCase):
     def setUp(self):
         self._class = Either
+
+    def test_binding_with_left(self):
+        self.assertEqual(
+            Left('').bind(Either.insert),
+            Left('')
+        )
 
 class EitherThen(common_tests.ThenTests, unittest.TestCase):
     def setUp(self):

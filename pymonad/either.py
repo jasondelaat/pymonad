@@ -36,6 +36,14 @@ class Either(pymonad.monad.Monad):
         """ See Monad.insert """
         return Right(value)
 
+    def amap(self, monad_value):
+        if self.is_left(): # pylint: disable=no-else-return
+            return self
+        elif monad_value.is_left(): # pylint: disable=no-else-return
+            return monad_value
+        else:
+            return Right(self.value(monad_value.value))
+
     def bind(self, kleisli_function):
         """ See Monad.bind """
         if self.is_left(): # pylint: disable=no-else-return
