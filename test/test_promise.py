@@ -48,7 +48,6 @@ class PromiseFunctorTests(unittest.TestCase):
             _run(self._class.insert(1).map(common_tests.add(1)).map(common_tests.sub(2)))
         )
 
-
 class PromiseApplicativeTests(unittest.TestCase):
     def setUp(self):
         self._class = _Promise
@@ -78,20 +77,16 @@ class PromiseApplicativeTests(unittest.TestCase):
         )
 
 
-async def inc(value):
-    return await Promise(lambda resolve, reject: resolve(value + 1))
+def inc(value):
+    return Promise(lambda resolve, reject: resolve(value + 1))
 
-async def dec(value):
-    return await Promise(lambda resolve, reject: resolve(value - 1))
+def dec(value):
+    return Promise(lambda resolve, reject: resolve(value - 1))
 
-async def dbl(value):
-    return await Promise(lambda resolve, reject: resolve(2 * value))
+def dbl(value):
+    return Promise(lambda resolve, reject: resolve(2 * value))
 
-def k_compose(f, g):
-    async def _compose_internal(a):
-        v = await f(a)
-        return await g(v)
-    return _compose_internal
+k_compose = pymonad.tools.kleisli_compose
     
 class PromiseMonadTests(unittest.TestCase):
     def setUp(self):
@@ -108,11 +103,10 @@ class PromiseMonadTests(unittest.TestCase):
             _run(k_compose(inc, self._class.insert)(0)),
             _run(inc(0))
         )
-
     def test_associativity(self):
         self.assertEqual(
-            _run(k_compose(k_compose(inc, dec), dbl)(0)),
-            _run(k_compose(inc, k_compose(dec, dbl))(0))
+            _run(k_compose(k_compose(dbl, inc), dec)(1)),
+            _run(k_compose(dbl, k_compose(inc, dec))(1))
         )
 
 class PromiseThenTests(unittest.TestCase):

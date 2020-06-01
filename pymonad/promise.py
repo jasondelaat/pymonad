@@ -92,46 +92,10 @@ This program prints "<type 'IndexError'>" as its output.
 import pymonad.monad
 import pymonad.tools
 
-async def _awaitable_amap(awaiting_function, awaiting_value):
-    try:
-        function = await awaiting_function
-        value = await awaiting_value
-        return function(value)
-    except Exception as e: # pylint: disable=invalid-name, broad-except
-        return e
-
-async def _awaitable_bind(_value, _function):
-    try:
-        value = await(_value)
-        return await _function(value[0])
-    except Exception as e: # pylint: disable=invalid-name, broad-except
-        return e
-
-async def _awaitable_catch(_value, _handler):
-    try:
-        value = await _value
-        if isinstance(value, Exception): # pylint: disable=no-else-raise
-            raise value
-        else:
-            return value
-    except Exception as e: # pylint: disable=invalid-name, broad-except
-        return _handler(e)
-
-async def _awaitable_map(_value, _function):
-    try:
-        value = await _value
-        return _function(value)
-    except Exception as e: # pylint: disable=invalid-name, broad-except
-        return e
-
-async def _awaitable_then(_value, _function):
-    try:
-        value = await _value
-        return await _function(value)
-    except TypeError:
-        return _function(value)
-
 class _Promise(pymonad.monad.Monad):
+    def __init__(self, value, monoid):
+        super().__init__(value, monoid)
+        self._resolve = pymonad.tools.identity
     @classmethod
     def insert(cls, value):
         """ See Monad.insert. """
@@ -139,11 +103,19 @@ class _Promise(pymonad.monad.Monad):
 
     def amap(self, monad_value):
         """ See Monad.amap. """
-        return self.__class__(_awaitable_amap(self, monad_value), None)
+        async def _awaitable_amap(resolve, reject): # pylint: disable=unused-argument
+            function = await self
+            value = await monad_value
+            return resolve(function(value))
+        return self.__class__(_awaitable_amap, None)
 
     def bind(self, kleisli_function):
         """ See Monad.bind. """
-        return self.__class__(_awaitable_bind(self, kleisli_function), None)
+        self._resolve = kleisli_function
+        async def _awaitable_bind(resolve, reject): # pylint: disable=unused-argument
+            value = await self
+            return resolve(await value)
+        return self.__class__(_awaitable_bind, None)
 
     def catch(self, error_handler):
         """ Allows users to handle errors caused earlier in the Promise chain.
@@ -162,21 +134,41 @@ class _Promise(pymonad.monad.Monad):
         Returns:
           A new Promise object.
         """
-        return self.__class__(_awaitable_catch(self, error_handler), None)
+        async def _awaitable_catch(resolve, reject): # pylint: disable=unused-argument
+            try:
+                value = await self
+                return resolve(value)
+            except Exception as e: # pylint: disable=invalid-name, broad-except
+                return resolve(error_handler(e))
+
+        return self.__class__(_awaitable_catch, None)
 
     def map(self, function):
         """ See Monad.map. """
-        return self.__class__(_awaitable_map(self.value, function), None)
+        self._resolve = function
+        async def _(resolve, reject): # pylint: disable=unused-argument
+            value = await self
+            return resolve(value)
+        return self.__class__(_, None)
+
 
     def then(self, function):
         """ See Monad.then. """
-        return self.__class__(_awaitable_then(self, function), None)
+        async def _awaitable_then(resolve, reject): # pylint: disable=unused-argument
+            try:
+                return resolve(await self.bind(function))
+            except TypeError:
+                return resolve(await self.map(function))
+        return self.__class__(_awaitable_then, None)
 
     def __await__(self):
-        return self.value.__await__()
+        return self.value(self._resolve, _reject).__await__()
 
 def _reject(error):
-    raise error
+    if not isinstance(error, Exception): # pylint: disable=no-else-raise
+        raise Exception(str(error))
+    else:
+        raise error
 
 def Promise(function): # pylint: disable=invalid-name
     """ Constructs a Promise object for ordering concurrent computations.
@@ -201,9 +193,10 @@ def Promise(function): # pylint: disable=invalid-name
     Returns:
       A new Promise object.
     """
-    async def _awaitable(function):
-        return function(pymonad.tools.identity, _reject)
-    return _Promise(_awaitable(function), None)
+    @pymonad.tools.curry(3)
+    async def _awaitable(function, resolve, reject):
+        return function(resolve, reject)
+    return _Promise(_awaitable(function), None) # pylint: disable=no-value-for-parameter
 
 Promise.insert = _Promise.insert
 Promise.apply = _Promise.apply
