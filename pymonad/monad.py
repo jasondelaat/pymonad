@@ -45,7 +45,6 @@ class Monad:
         """
         self.value = value
         self.monoid = monoid
-        self.is_monad_value = True
 
     def map(self, function):
         """ Applies 'function' to the contents of the functor and returns a new functor value. """
@@ -84,11 +83,12 @@ class Monad:
         Returns:
           A monad value of the same type as 'self'
         """
-
         try:
             result = self.bind(function)
-            result.is_monad_value # pylint: disable=pointless-statement
-            return result
+            if isinstance(result, Monad): # pylint: disable=no-else-return
+                return result
+            else:
+                return self.map(function)
         except AttributeError:
             return self.map(function)
 
