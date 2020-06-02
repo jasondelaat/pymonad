@@ -54,6 +54,14 @@ class Either(pymonad.monad.Monad):
             except Exception as e: # pylint: disable=invalid-name, broad-except
                 return Left(e)
 
+    def is_left(self):
+        """ Returns True if this Either instance was created with the 'Left' function. """
+        return not self.monoid[1]
+
+    def is_right(self):
+        """ Returns True if this Either instance was created with the 'Right' function. """
+        return self.monoid[1]
+
     def map(self, function):
         """ See Monad.map """
         if self.is_left(): # pylint: disable=no-else-return
@@ -63,15 +71,6 @@ class Either(pymonad.monad.Monad):
                 return Right(function(self.value))
             except Exception as e: # pylint: disable=invalid-name, broad-except
                 return Left(e)
-
-    def is_right(self):
-        """ Returns True if this Either instance was created with the 'Right' function. """
-        return self.monoid[1]
-
-    def is_left(self):
-        """ Returns True if this Either instance was created with the 'Left' function. """
-        return not self.monoid[1]
-
 
     def __eq__(self, other):
         """ Checks equality of Maybe objects.
@@ -86,24 +85,29 @@ class Either(pymonad.monad.Monad):
     def __repr__(self):
         return f'Right {self.value}' if self.is_right() else f'Left {self.monoid[0]}'
 
+def Left(value): # pylint: disable=invalid-name
+    """ Creates a value of the first possible type in the Either monad. """
+    return Either(None, (value, False))
+
 def Right(value): # pylint: disable=invalid-name
     """ Creates a value of the second possible type in the Either monad. """
     return Either(value, (None, True))
 
-def Left(value): # pylint: disable=invalid-name
-    """ Creates a value of the first possible type in the Either monad. """
-    return Either(None, (value, False))
+
+
+
+
 
 class _Error(pymonad.monad.MonadAlias, Either):
     def __repr__(self):
         return f'Result: {self.value}' if self.is_right() else f'Error: {self.monoid[0]}'
 
-def Result(value): # pylint: disable=invalid-name
-    """ Creates a value representing the successful result of a calculation. """
-    return _Error(value, (None, True))
-
 def Error(value): # pylint: disable=invalid-name
     """ Creates an error value as the result of a calculation. """
     return _Error(None, (value, False))
+
+def Result(value): # pylint: disable=invalid-name
+    """ Creates a value representing the successful result of a calculation. """
+    return _Error(value, (None, True))
 
 Error.insert = _Error.insert

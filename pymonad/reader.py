@@ -12,15 +12,15 @@ import pymonad.monad
 import pymonad.tools
 
 @pymonad.tools.curry(3)
+def _bind(function_f, function_g, read_only):
+    return function_f(function_g(read_only))(read_only)
+
+@pymonad.tools.curry(3)
 def _bind_or_map(function_f, function_g, read_only):
     try:
         return _bind(function_f, function_g, read_only)
     except TypeError:
         return _map(function_f, function_g, read_only)
-
-@pymonad.tools.curry(3)
-def _bind(function_f, function_g, read_only):
-    return function_f(function_g(read_only))(read_only)
 
 @pymonad.tools.curry(3)
 def _map(function_f, function_g, read_only):
@@ -58,8 +58,8 @@ def Reader(function): # pylint: disable=invalid-name
     """
     return _Reader(function, None)
 
-Reader.insert = _Reader.insert
 Reader.apply = _Reader.apply
+Reader.insert = _Reader.insert
 
 
 
@@ -98,9 +98,6 @@ def Compose(function): # pylint: disable=invalid-name
 
 
 class _Pipe(pymonad.monad.MonadAlias, _Reader):
-    def __pos__(self):
-        return self.flush()
-
     def flush(self):
         """ Calls the composed Pipe function returning  the embedded result.
 
@@ -109,6 +106,9 @@ class _Pipe(pymonad.monad.MonadAlias, _Reader):
         input anyway, simply joining inputs to outputs.
         """
         return self(None)
+
+    def __pos__(self):
+        return self.flush()
 
 def Pipe(value): # pylint: disable=invalid-name
     """ Creates an instance of the Pipe monad.

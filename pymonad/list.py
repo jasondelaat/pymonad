@@ -39,12 +39,12 @@ class _List(pymonad.monad.Monad, list):
     def bind(self, kleisli_function):
         return self.map(kleisli_function).join()
 
-    def map(self, function):
-        return ListMonad(*[function(x) for x in self])
-
     def join(self):
         """ Flattens a nested ListMonad instance one level. """
         return ListMonad(*[element for lists in self for element in lists])
+
+    def map(self, function):
+        return ListMonad(*[function(x) for x in self])
 
     def then(self, function):
         try:

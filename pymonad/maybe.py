@@ -31,16 +31,6 @@ class Maybe(pymonad.monad.Monad):
         """ See Monad.insert """
         return Just(value)
 
-    def map(self, function):
-        """ See Monad.map """
-        if self.is_nothing(): #pylint: disable=no-else-return
-            return self
-        else:
-            try:
-                return Just(function(self.value))
-            except: # pylint: disable=bare-except
-                return Nothing
-
     def amap(self, monad_value):
         """ See Monad.amap"""
         if self.is_nothing() or monad_value.is_nothing(): #pylint: disable=no-else-return
@@ -65,6 +55,16 @@ class Maybe(pymonad.monad.Monad):
     def is_nothing(self):
         """ Returns True if the monad instance is the 'Nothing' value. """
         return not self.monoid
+
+    def map(self, function):
+        """ See Monad.map """
+        if self.is_nothing(): #pylint: disable=no-else-return
+            return self
+        else:
+            try:
+                return Just(function(self.value))
+            except: # pylint: disable=bare-except
+                return Nothing
 
     def __eq__(self, other):
         """ Checks equality of Maybe objects.

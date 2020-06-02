@@ -22,5 +22,5 @@ def ListMonad(*elements): # pylint: disable=invalid-name
 
     return _List(list(elements), None)
 
-ListMonad.insert = _List.insert
 ListMonad.apply = _List.apply
+ListMonad.insert = _List.insert

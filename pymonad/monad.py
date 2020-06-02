@@ -46,52 +46,6 @@ class Monad:
         self.value = value
         self.monoid = monoid
 
-    def map(self, function):
-        """ Applies 'function' to the contents of the functor and returns a new functor value. """
-        raise NotImplementedError("'fmap' not defined.")
-
-    @classmethod
-    def insert(cls, value):
-        """ Returns an instance of the Functor with 'value' in a minimum context.  """
-        raise NotImplementedError
-
-    def amap(self, monad_value):
-        """ Applies the function stored in the functor to the value inside 'functor_value'
-        returning a new functor value.
-        """
-        return monad_value.map(self.value)
-
-    def bind(self, kleisli_function):
-        """ Applies 'function' to the result of a previous monadic calculation. """
-        raise NotImplementedError
-
-    def then(self, function):
-        """ Combines the functionality of bind and fmap.
-
-        Instead of worrying about whether to use bind or fmap,
-        users can just use the then method to chain function
-        calls together. The then method uses attempts to use
-        bind first and if that doesn't work, uses fmap
-        instead.
-
-        Args:
-          function: A python function or lambda expression
-            which returns either a build-in type (int, string,
-            etc.) or an appropriate monad type (Maybe, Either,
-            etc.)
-
-        Returns:
-          A monad value of the same type as 'self'
-        """
-        try:
-            result = self.bind(function)
-            if isinstance(result, Monad): # pylint: disable=no-else-return
-                return result
-            else:
-                return self.map(function)
-        except AttributeError:
-            return self.map(function)
-
     @classmethod
     def apply(cls, function):
         """ Supplies a cleaner interface for applicative functor/amap usage.
@@ -140,6 +94,53 @@ class Monad:
 
         return _Applicative(None, None) # We don't actually care about the inputs here
 
+    @classmethod
+    def insert(cls, value):
+        """ Returns an instance of the Functor with 'value' in a minimum context.  """
+        raise NotImplementedError
+
+    def amap(self, monad_value):
+        """ Applies the function stored in the functor to the value inside 'functor_value'
+        returning a new functor value.
+        """
+        return monad_value.map(self.value)
+
+    def bind(self, kleisli_function):
+        """ Applies 'function' to the result of a previous monadic calculation. """
+        raise NotImplementedError
+
+    def map(self, function):
+        """ Applies 'function' to the contents of the functor and returns a new functor value. """
+        raise NotImplementedError("'fmap' not defined.")
+
+    def then(self, function):
+        """ Combines the functionality of bind and fmap.
+
+        Instead of worrying about whether to use bind or fmap,
+        users can just use the then method to chain function
+        calls together. The then method uses attempts to use
+        bind first and if that doesn't work, uses fmap
+        instead.
+
+        Args:
+          function: A python function or lambda expression
+            which returns either a build-in type (int, string,
+            etc.) or an appropriate monad type (Maybe, Either,
+            etc.)
+
+        Returns:
+          A monad value of the same type as 'self'
+        """
+        try:
+            result = self.bind(function)
+            if isinstance(result, Monad): # pylint: disable=no-else-return
+                return result
+            else:
+                return self.map(function)
+        except AttributeError:
+            return self.map(function)
+
+
 class MonadAlias(Monad):
     """ Provides monad method overrides which make it easy to give a monad an alias.
 
@@ -172,17 +173,16 @@ class MonadAlias(Monad):
         result = super().insert(value)
         return cls(result.value, result.monoid)
 
-    def map(self, function):
-        result = super().map(function)
-        return self.__class__(result.value, result.monoid)
-
     def amap(self, monad_value):
         result = super().amap(monad_value)
         return self.__class__(result.value, result.monoid)
 
-
     def bind(self, kleisli_function):
         result = super().bind(kleisli_function)
+        return self.__class__(result.value, result.monoid)
+
+    def map(self, function):
+        result = super().map(function)
         return self.__class__(result.value, result.monoid)
 
     def then(self, function):

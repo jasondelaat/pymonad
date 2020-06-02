@@ -22,5 +22,5 @@ def Reader(function): # pylint: disable=invalid-name
     """
     return _Reader(function, None)
 
-Reader.insert = _Reader.insert
 Reader.apply = _Reader.apply
+Reader.insert = _Reader.insert

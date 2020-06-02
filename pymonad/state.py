@@ -12,15 +12,15 @@ def _bind(monad_value, kleisli_function, state):
     return kleisli_function(monad_value.value(state)).run(monad_value.monoid(state))
 
 @pymonad.tools.curry(3)
-def _map(monad_value, function, state):
-    return (function(monad_value.value(state)), monad_value.monoid(state))
-
-@pymonad.tools.curry(3)
 def _bind_or_map(monad_value, function, state):
     try:
         return _bind(monad_value, function, state)
     except AttributeError:
         return _map(monad_value, function, state)
+
+@pymonad.tools.curry(3)
+def _map(monad_value, function, state):
+    return (function(monad_value.value(state)), monad_value.monoid(state))
 
 class _State(pymonad.monad.Monad):
     @classmethod
@@ -68,5 +68,5 @@ def State(state_function): # pylint: disable=invalid-name
     """
     return _State(lambda s: state_function(s)[0], lambda s: state_function(s)[1])
 
-State.insert = _State.insert
 State.apply = _State.apply
+State.insert = _State.insert

@@ -21,5 +21,5 @@ def State(state_function): # pylint: disable=invalid-name
     """
     return _State(lambda s: state_function(s)[0], lambda s: state_function(s)[1])
 
-State.insert = _State.insert
 State.apply = _State.apply
+State.insert = _State.insert

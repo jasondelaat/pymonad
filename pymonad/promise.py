@@ -92,10 +92,17 @@ This program prints "<type 'IndexError'>" as its output.
 import pymonad.monad
 import pymonad.tools
 
+def _reject(error):
+    if not isinstance(error, Exception): # pylint: disable=no-else-raise
+        raise Exception(str(error))
+    else:
+        raise error
+
 class _Promise(pymonad.monad.Monad):
     def __init__(self, value, monoid):
         super().__init__(value, monoid)
         self._resolve = pymonad.tools.identity
+
     @classmethod
     def insert(cls, value):
         """ See Monad.insert. """
@@ -164,12 +171,6 @@ class _Promise(pymonad.monad.Monad):
     def __await__(self):
         return self.value(self._resolve, _reject).__await__()
 
-def _reject(error):
-    if not isinstance(error, Exception): # pylint: disable=no-else-raise
-        raise Exception(str(error))
-    else:
-        raise error
-
 def Promise(function): # pylint: disable=invalid-name
     """ Constructs a Promise object for ordering concurrent computations.
 
@@ -198,5 +199,5 @@ def Promise(function): # pylint: disable=invalid-name
         return function(resolve, reject)
     return _Promise(_awaitable(function), None) # pylint: disable=no-value-for-parameter
 
-Promise.insert = _Promise.insert
 Promise.apply = _Promise.apply
+Promise.insert = _Promise.insert
