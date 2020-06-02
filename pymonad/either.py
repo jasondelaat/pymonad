@@ -110,4 +110,5 @@ def Result(value): # pylint: disable=invalid-name
     """ Creates a value representing the successful result of a calculation. """
     return _Error(value, (None, True))
 
+Error.apply = _Error.apply
 Error.insert = _Error.insert
