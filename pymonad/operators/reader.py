@@ -4,8 +4,8 @@
 # --------------------------------------------------------
 """ Adds operators to the Reader monad. """
 import pymonad.monad
-import pymonad.reader
 import pymonad.operators.operators
+import pymonad.reader
 
 class _Reader(pymonad.operators.operators.MonadOperators, pymonad.reader._Reader): # pylint: disable=protected-access
     """ See pymonad.operators.operators and pymonad.reader. """

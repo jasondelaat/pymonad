@@ -3,8 +3,8 @@
 # Licensed under BSD 3-clause licence.
 # --------------------------------------------------------
 """ Adds operators to the Either monad. """
-import pymonad.monad
 import pymonad.either
+import pymonad.monad
 import pymonad.operators.operators
 
 class Either(pymonad.operators.operators.MonadOperators, pymonad.either.Either):

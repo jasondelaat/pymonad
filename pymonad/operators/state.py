@@ -4,8 +4,8 @@
 # --------------------------------------------------------
 """ Adds operators to the State monad. """
 import pymonad.monad
-import pymonad.state
 import pymonad.operators.operators
+import pymonad.state
 
 class _State(pymonad.operators.operators.MonadOperators, pymonad.state._State): # pylint: disable=protected-access
     """ See pymonad.operators.operators and pymonad.state. """

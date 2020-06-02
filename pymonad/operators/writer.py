@@ -4,8 +4,8 @@
 # --------------------------------------------------------
 """ Adds operators to the Writer monad. """
 import pymonad.monad
-import pymonad.writer
 import pymonad.operators.operators
+import pymonad.writer
 
 class Writer(pymonad.operators.operators.MonadOperators, pymonad.writer.Writer):
     """ See pymonad.operators.operators and pymonad.writer. """

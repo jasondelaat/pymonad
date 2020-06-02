@@ -3,8 +3,8 @@
 # Licensed under BSD 3-clause licence.
 # --------------------------------------------------------
 """ Adds operators to the List monad. """
-import pymonad.monad
 import pymonad.list
+import pymonad.monad
 import pymonad.operators.operators
 
 class _List(pymonad.operators.operators.MonadOperators, pymonad.list._List): # pylint: disable=protected-access

@@ -3,8 +3,8 @@
 # Licensed under BSD 3-clause licence.
 # --------------------------------------------------------
 """ Adds operators to the Maybe monad. """
-import pymonad.monad
 import pymonad.maybe
+import pymonad.monad
 import pymonad.operators.operators
 
 class Maybe(pymonad.operators.operators.MonadOperators, pymonad.maybe.Maybe):
