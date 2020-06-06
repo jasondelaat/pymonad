@@ -7,3 +7,4 @@ build
 install-env
 MANIFEST
 dist
+.pytype
