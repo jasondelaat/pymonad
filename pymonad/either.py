@@ -26,17 +26,22 @@ The 'insert' class method is a wrapper around the 'Right' function.
   Example:
     x = Either.insert(9) # Same as Right(9)
 """
+from typing import Any, Callable, Generic, TypeVar
 
 import pymonad.monad
 
-class Either(pymonad.monad.Monad):
+M = TypeVar('M') # pylint: disable=invalid-name
+S = TypeVar('S') # pylint: disable=invalid-name
+T = TypeVar('T') # pylint: disable=invalid-name
+
+class Either(pymonad.monad.Monad, Generic[M, T]):
     """ The Either monad class. """
     @classmethod
-    def insert(cls, value):
+    def insert(cls, value: T) -> 'Either[Any, T]':
         """ See Monad.insert """
         return Right(value)
 
-    def amap(self, monad_value):
+    def amap(self: 'Either[M, Callable[[S], T]]', monad_value: 'Either[M, S]') -> 'Either[M, T]':
         if self.is_left(): # pylint: disable=no-else-return
             return self
         elif monad_value.is_left(): # pylint: disable=no-else-return
@@ -44,7 +49,9 @@ class Either(pymonad.monad.Monad):
         else:
             return Right(self.value(monad_value.value))
 
-    def bind(self, kleisli_function):
+    def bind(
+            self: 'Either[M, S]', kleisli_function: Callable[[S], 'Either[M, T]']
+    ) -> 'Either[M, T]':
         """ See Monad.bind """
         if self.is_left(): # pylint: disable=no-else-return
             return self
@@ -54,15 +61,15 @@ class Either(pymonad.monad.Monad):
             except Exception as e: # pylint: disable=invalid-name, broad-except
                 return Left(e)
 
-    def is_left(self):
+    def is_left(self) -> bool:
         """ Returns True if this Either instance was created with the 'Left' function. """
         return not self.monoid[1]
 
-    def is_right(self):
+    def is_right(self) -> bool:
         """ Returns True if this Either instance was created with the 'Right' function. """
         return self.monoid[1]
 
-    def map(self, function):
+    def map(self: 'Either[M, S]', function: Callable[[S], T]) -> 'Either[M, T]':
         """ See Monad.map """
         if self.is_left(): # pylint: disable=no-else-return
             return self
@@ -85,11 +92,11 @@ class Either(pymonad.monad.Monad):
     def __repr__(self):
         return f'Right {self.value}' if self.is_right() else f'Left {self.monoid[0]}'
 
-def Left(value): # pylint: disable=invalid-name
+def Left(value: M) -> Either[M, Any]: # pylint: disable=invalid-name
     """ Creates a value of the first possible type in the Either monad. """
     return Either(None, (value, False))
 
-def Right(value): # pylint: disable=invalid-name
+def Right(value: T) -> Either[Any, T]: # pylint: disable=invalid-name
     """ Creates a value of the second possible type in the Either monad. """
     return Either(value, (None, True))
 
@@ -98,15 +105,15 @@ def Right(value): # pylint: disable=invalid-name
 
 
 
-class _Error(pymonad.monad.MonadAlias, Either):
+class _Error(pymonad.monad.MonadAlias, Either[M, T]):
     def __repr__(self):
         return f'Result: {self.value}' if self.is_right() else f'Error: {self.monoid[0]}'
 
-def Error(value): # pylint: disable=invalid-name
+def Error(value: M) -> _Error[M, Any]: # pylint: disable=invalid-name
     """ Creates an error value as the result of a calculation. """
     return _Error(None, (value, False))
 
-def Result(value): # pylint: disable=invalid-name
+def Result(value: T) -> _Error[Any, T]: # pylint: disable=invalid-name
     """ Creates a value representing the successful result of a calculation. """
     return _Error(value, (None, True))
 
