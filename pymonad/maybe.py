@@ -21,24 +21,28 @@ The 'insert' class method is a wrapper around the 'Just' function.
   Example:
     x = Maybe.insert(9) # Same as Just(9)
 """
+from typing import Any, Callable, Generic, TypeVar
 
 import pymonad.monad
 
-class Maybe(pymonad.monad.Monad):
+S = TypeVar('S') # pylint: disable=invalid-name
+T = TypeVar('T') # pylint: disable=invalid-name
+
+class Maybe(pymonad.monad.Monad, Generic[T]):
     """ The Maybe monad class. """
     @classmethod
-    def insert(cls, value):
+    def insert(cls, value: T) -> 'Maybe[T]':
         """ See Monad.insert """
         return Just(value)
 
-    def amap(self, monad_value):
+    def amap(self: 'Maybe[Callable[[S], T]]', monad_value: 'Maybe[S]') -> 'Maybe[T]':
         """ See Monad.amap"""
         if self.is_nothing() or monad_value.is_nothing(): #pylint: disable=no-else-return
             return Nothing
         else:
             return monad_value.map(self.value)
 
-    def bind(self, kleisli_function):
+    def bind(self: 'Maybe[S]', kleisli_function: 'Callable[[S], Maybe[T]]') -> 'Maybe[T]':
         """ See Monad.bind """
         if self.monoid is False: #pylint: disable=no-else-return
             return self
@@ -48,15 +52,15 @@ class Maybe(pymonad.monad.Monad):
             except: # pylint: disable=bare-except
                 return Nothing
 
-    def is_just(self):
+    def is_just(self) -> bool:
         """ Returns True if the monad instance was created with the 'Just' function. """
         return self.monoid
 
-    def is_nothing(self):
+    def is_nothing(self) -> bool:
         """ Returns True if the monad instance is the 'Nothing' value. """
         return not self.monoid
 
-    def map(self, function):
+    def map(self: 'Maybe[S]', function: Callable[[S], T]) -> 'Maybe[T]':
         """ See Monad.map """
         if self.is_nothing(): #pylint: disable=no-else-return
             return self
@@ -79,12 +83,12 @@ class Maybe(pymonad.monad.Monad):
     def __repr__(self):
         return f'Just {self.value}' if self.monoid else 'Nothing'
 
-def Just(value): # pylint: disable=invalid-name
+def Just(value: T) -> Maybe[T]: # pylint: disable=invalid-name
     """ A Maybe object representing the presence of an optional value. """
     return Maybe(value, True)
 
 # A Maybe object representing the absence of an optional value.
-Nothing = Maybe(None, False) # pylint: disable=invalid-name
+Nothing: Maybe[Any] = Maybe(None, False) # pylint: disable=invalid-name
 
 
 
@@ -92,11 +96,11 @@ Nothing = Maybe(None, False) # pylint: disable=invalid-name
 
 
 
-class Option(pymonad.monad.MonadAlias, Maybe): # MonadAlias must be the first parent class
+class Option(pymonad.monad.MonadAlias, Maybe[T]): # MonadAlias must be the first parent class
     """ An alias for the Maybe monad class. """
     def __repr__(self):
         return f'Some {self.value}' if self.monoid else 'Nothing'
 
-def Some(value): # pylint: disable=invalid-name
+def Some(value: T) -> Option[T]: # pylint: disable=invalid-name
     """ An Option object representing the presence of an optional value. """
     return Option(value, True)
