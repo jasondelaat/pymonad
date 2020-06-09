@@ -24,6 +24,21 @@ String can also form a monoid where mzero is the empty string and
 mplus is concatenation.
 """
 
+class _MonoidZero:
+    def __add__(self, other):
+        return other
+
+    def __radd__(self, other):
+        return other
+
+    def __mul__(self, other):
+        return other
+
+    def __rmul__(self, other):
+        return other
+
+MONOID_ZERO = _MonoidZero()
+
 class Monoid:
     """ Abstract base class for Monoid instances.
 
