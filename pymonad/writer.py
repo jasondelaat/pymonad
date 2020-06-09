@@ -25,15 +25,17 @@ monoid with a defined + (__add__) operator.
     # logged_arithmetic = (2, "Called function 'add' with arguments 1 and 0. Result: 1
     #                     Called function 'mul' with arguments 2 and 1. Result: 2")
 """
+from typing import Any, Callable, Generic, TypeVar
 
 import pymonad.monad
+import pymonad.monoid
 
 class Writer(pymonad.monad.Monad):
     """ The Writer monad class. """
     @classmethod
     def insert(cls, value):
         """ See Monad.insert. """
-        return Writer(value, '')
+        return Writer(value, pymonad.monoid.MONOID_ZERO)
 
     def bind(self, kleisli_function):
         """ See Monad.bind. """

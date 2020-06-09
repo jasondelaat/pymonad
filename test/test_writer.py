@@ -5,6 +5,7 @@
 import unittest
 
 import common_tests
+import pymonad.monoid
 from pymonad.writer import Writer
 
 class WriterTests(unittest.TestCase):
@@ -17,11 +18,11 @@ class WriterTests(unittest.TestCase):
     def test_insert(self):
         self.assertEqual(
             Writer.insert(1),
-            Writer(1, '')
+            Writer(1, pymonad.monoid.MONOID_ZERO)
         )
         self.assertEqual(
             str(Writer.insert(1)),
-            '(1, )'
+            '(1, MZERO)'
         )
 
 class WriterFunctor(common_tests.FunctorTests, unittest.TestCase):
