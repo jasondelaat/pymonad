@@ -37,6 +37,9 @@ class _MonoidZero:
     def __rmul__(self, other):
         return other
 
+    def __repr__(self):
+        return 'MZERO'
+
 MONOID_ZERO = _MonoidZero()
 
 class Monoid:

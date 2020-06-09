@@ -14,3 +14,6 @@ class MZero_Tests(unittest.TestCase):
     def test_right_identity(self):
         self.assertEqual(10 + monoid.MONOID_ZERO, 10)
         self.assertEqual(10 * monoid.MONOID_ZERO, 10)
+
+    def test_repr(self):
+        self.assertEqual(str(monoid.MONOID_ZERO), 'MZERO')
