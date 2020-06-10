@@ -18,7 +18,7 @@ class WriterTests(unittest.TestCase):
     def test_insert(self):
         self.assertEqual(
             Writer.insert(1),
-            Writer(1, pymonad.monoid.MONOID_ZERO)
+            Writer(1, pymonad.monoid.ZERO)
         )
         self.assertEqual(
             str(Writer.insert(1)),

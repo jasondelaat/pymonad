@@ -25,24 +25,30 @@ monoid with a defined + (__add__) operator.
     # logged_arithmetic = (2, "Called function 'add' with arguments 1 and 0. Result: 1
     #                     Called function 'mul' with arguments 2 and 1. Result: 2")
 """
-from typing import Any, Callable, Generic, TypeVar
+from typing import Callable, Generic, List, TypeVar
 
 import pymonad.monad
 import pymonad.monoid
 
-class Writer(pymonad.monad.Monad):
+M = TypeVar('M', int, str, List, pymonad.monoid.Monoid, pymonad.monoid.ZERO) # pylint: disable=invalid-name
+S = TypeVar('S') # pylint: disable=invalid-name
+T = TypeVar('T') # pylint: disable=invalid-name
+
+class Writer(pymonad.monad.Monad, Generic[M, T]):
     """ The Writer monad class. """
     @classmethod
-    def insert(cls, value):
+    def insert(cls, value: T) -> 'Writer[M, T]':
         """ See Monad.insert. """
-        return Writer(value, pymonad.monoid.MONOID_ZERO)
+        return Writer(value, pymonad.monoid.ZERO)
 
-    def bind(self, kleisli_function):
+    def bind(
+            self: 'Writer[M, S]', kleisli_function: Callable[[S], 'Writer[M, T]']
+    ) -> 'Writer[M, T]':
         """ See Monad.bind. """
         result = kleisli_function(self.value)
         return Writer(result.value, self.monoid + result.monoid)
 
-    def map(self, function):
+    def map(self: 'Writer[M, S]', function: Callable[[S], T]) -> 'Writer[M, T]':
         """ See Monad.map. """
         return Writer(function(self.value), self.monoid)
 
