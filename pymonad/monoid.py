@@ -24,23 +24,31 @@ String can also form a monoid where mzero is the empty string and
 mplus is concatenation.
 """
 
-class _MonoidZero:
-    def __add__(self, other):
+class _MonoidZeroMeta(type):
+    def __add__(cls, other):
         return other
 
-    def __radd__(self, other):
+    def __radd__(cls, other):
         return other
 
-    def __mul__(self, other):
-        return other
-
-    def __rmul__(self, other):
-        return other
-
-    def __repr__(self):
+    def __repr__(cls):
         return 'MZERO'
 
-MONOID_ZERO = _MonoidZero()
+class ZERO(metaclass=_MonoidZeroMeta): # pylint: disable=too-few-public-methods
+    """ A generic zero/identity element for monoids.
+
+    The ZERO class acts as a constant/singleton with monoid addition
+    implemented on the class itself to always return the other
+    element. It is not actually possible to create an instance of ZERO
+    as calling the constructor simply returns the class itself.
+
+    Example:
+      ZERO == ZERO() # True.
+      ZERO + 10      # 10
+      'hello' + ZERO # 'hello'
+    """
+    def __new__(cls):
+        return ZERO
 
 class Monoid:
     """ Abstract base class for Monoid instances.
