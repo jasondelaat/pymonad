@@ -7,9 +7,14 @@
 The Reader monad creates a context in which functions have access to
 an additional read-only input.
 """
+from typing import Any, Callable, Generic, TypeVar, Union
 
 import pymonad.monad
 import pymonad.tools
+
+R = TypeVar('R') # pylint: disable=invalid-name
+S = TypeVar('S') # pylint: disable=invalid-name
+T = TypeVar('T') # pylint: disable=invalid-name
 
 @pymonad.tools.curry(3)
 def _bind(function_f, function_g, read_only):
@@ -26,27 +31,31 @@ def _bind_or_map(function_f, function_g, read_only):
 def _map(function_f, function_g, read_only):
     return function_f(function_g(read_only))
 
-class _Reader(pymonad.monad.Monad):
+class _Reader(pymonad.monad.Monad, Generic[R, T]):
     @classmethod
-    def insert(cls, value):
+    def insert(cls, value: T) -> '_Reader[Any, T]':
         return Reader(lambda r: value)
 
-    def amap(self, monad_value):
+    def amap(self: '_Reader[R, Callable[[S], T]]', monad_value: '_Reader[R, S]') -> '_Reader[R, T]':
         return Reader(lambda r: self(r)(monad_value(r)))
 
-    def bind(self, kleisli_function):
+    def bind(
+            self: '_Reader[R, S]', kleisli_function: Callable[[S], '_Reader[R, T]']
+    ) -> '_Reader[R, T]':
         return Reader(_bind(kleisli_function, self)) # pylint: disable=no-value-for-parameter
 
-    def map(self, function):
+    def map(self: '_Reader[R, S]', function: Callable[[S], T]) -> '_Reader[R, T]':
         return Reader(_map(function, self)) # pylint: disable=no-value-for-parameter
 
-    def then(self, function):
+    def then(
+            self: '_Reader[R, S]', function: Union[Callable[[S], T], Callable[[S], '_Reader[R, T]']]
+    ) -> '_Reader[R, T]':
         return Reader(_bind_or_map(function, self)) # pylint: disable=no-value-for-parameter
 
-    def __call__(self, arg):
+    def __call__(self, arg: R) -> T:
         return self.value(arg)
 
-def Reader(function): # pylint: disable=invalid-name
+def Reader(function: Callable[[R], T]) -> _Reader[R, T]: # pylint: disable=invalid-name
     """ Creates an instance of the Reader monad.
 
     Args:
@@ -65,7 +74,7 @@ Reader.insert = _Reader.insert
 
 
 
-def Compose(function): # pylint: disable=invalid-name
+def Compose(function: Callable[[R], T]) -> _Reader[R, T]: # pylint: disable=invalid-name
     """ Creates an instance of the Compose monad.
 
     Compose is basically an alias for the Reader monad except with the
@@ -97,7 +106,7 @@ def Compose(function): # pylint: disable=invalid-name
 
 
 
-class _Pipe(pymonad.monad.MonadAlias, _Reader):
+class _Pipe(pymonad.monad.MonadAlias, _Reader[R, T]):
     def flush(self):
         """ Calls the composed Pipe function returning  the embedded result.
 
@@ -110,7 +119,7 @@ class _Pipe(pymonad.monad.MonadAlias, _Reader):
     def __pos__(self):
         return self.flush()
 
-def Pipe(value): # pylint: disable=invalid-name
+def Pipe(value: T) -> _Pipe[Any, T]: # pylint: disable=invalid-name
     """ Creates an instance of the Pipe monad.
 
     Pipe is basically an alias for the Reader monad except with the
