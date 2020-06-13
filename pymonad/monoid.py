@@ -24,6 +24,10 @@ String can also form a monoid where mzero is the empty string and
 mplus is concatenation.
 """
 
+from typing import Any, Generic, List, TypeVar # pylint: disable=unused-import
+
+T = TypeVar('T') # pylint: disable=invalid-name
+
 class _MonoidZeroMeta(type):
     def __add__(cls, other):
         return other
@@ -50,7 +54,7 @@ class ZERO(metaclass=_MonoidZeroMeta): # pylint: disable=too-few-public-methods
     def __new__(cls):
         return ZERO
 
-class Monoid:
+class Monoid(Generic[T]):
     """ Abstract base class for Monoid instances.
 
     To implement a monoid instance, users should create a sub-class of
@@ -60,20 +64,20 @@ class Monoid:
     laws for monoids.
     """
 
-    def __init__(self, value):
+    def __init__(self, value: T) -> None:
         """ Initializes the monoid element to 'value'.  """
         self.value = value
 
-    def __add__(self, other):
+    def __add__(self: 'Monoid[T]', other: 'Monoid[T]') -> 'Monoid[T]':
         """ The 'mplus' operator.  """
         return self.mplus(other)
 
-    def __eq__(self, other):
+    def __eq__(self: 'Monoid[T]', other: 'Monoid[T]') -> bool:
         return self.value == other.value
 
 
     @staticmethod
-    def mzero():
+    def mzero() -> 'Monoid[Any]':
         """
         A static method which simply returns the identity value for the monoid type.
         This method must be overridden in subclasses to create custom monoids.
@@ -121,7 +125,7 @@ def mzero(monoid_type):
         else:
             raise TypeError(str(monoid_type) + " is not a Monoid.")
 
-def mconcat(monoid_list):
+def mconcat(monoid_list: List[Monoid[T]]) -> Monoid[T]:
     """
     Takes a list of monoid values and reduces them to a single value by applying the
     mplus operation to each all elements of the list.
