@@ -89,8 +89,17 @@ accepts an Exception as it's input.
 
 This program prints "<type 'IndexError'>" as its output.
 """
+from typing import Callable, Generic, TypeVar, Union
+
 import pymonad.monad
 import pymonad.tools
+
+S = TypeVar('S') # pylint: disable=invalid-name
+T = TypeVar('T') # pylint: disable=invalid-name
+
+ResolveFunction = Callable[[S], T]
+RejectFunction = Callable[[Exception], T]
+PromiseFunction = Callable[[ResolveFunction, RejectFunction], T]
 
 def _reject(error):
     if not isinstance(error, Exception): # pylint: disable=no-else-raise
@@ -98,17 +107,17 @@ def _reject(error):
     else:
         raise error
 
-class _Promise(pymonad.monad.Monad):
+class _Promise(pymonad.monad.Monad, Generic[T]):
     def __init__(self, value, monoid):
         super().__init__(value, monoid)
         self._resolve = pymonad.tools.identity
 
     @classmethod
-    def insert(cls, value):
+    def insert(cls, value: T) -> '_Promise[T]':
         """ See Monad.insert. """
         return Promise(lambda resolve, reject: resolve(value))
 
-    def amap(self, monad_value):
+    def amap(self: '_Promise[Callable[[S], T]]', monad_value: '_Promise[S]') -> '_Promise[T]':
         """ See Monad.amap. """
         async def _awaitable_amap(resolve, reject): # pylint: disable=unused-argument
             function = await self
@@ -116,7 +125,7 @@ class _Promise(pymonad.monad.Monad):
             return resolve(function(value))
         return self.__class__(_awaitable_amap, None)
 
-    def bind(self, kleisli_function):
+    def bind(self: '_Promise[S]', kleisli_function: Callable[[S], '_Promise[T]']) -> '_Promise[T]':
         """ See Monad.bind. """
         self._resolve = kleisli_function
         async def _awaitable_bind(resolve, reject): # pylint: disable=unused-argument
@@ -124,7 +133,7 @@ class _Promise(pymonad.monad.Monad):
             return resolve(await value)
         return self.__class__(_awaitable_bind, None)
 
-    def catch(self, error_handler):
+    def catch(self: '_Promise[T]', error_handler: Callable[[Exception], T]) -> '_Promise[T]':
         """ Allows users to handle errors caused earlier in the Promise chain.
 
         The catch method takes an error handling function as input. If
@@ -150,7 +159,7 @@ class _Promise(pymonad.monad.Monad):
 
         return self.__class__(_awaitable_catch, None)
 
-    def map(self, function):
+    def map(self: '_Promise[S]', function: Callable[[S], T]) -> '_Promise[T]':
         """ See Monad.map. """
         self._resolve = function
         async def _(resolve, reject): # pylint: disable=unused-argument
@@ -159,7 +168,9 @@ class _Promise(pymonad.monad.Monad):
         return self.__class__(_, None)
 
 
-    def then(self, function):
+    def then(
+            self: '_Promise[S]', function: Union[Callable[[S], T], Callable[[S], '_Promise[T]']]
+    ) -> '_Promise[T]':
         """ See Monad.then. """
         async def _awaitable_then(resolve, reject): # pylint: disable=unused-argument
             try:
@@ -171,7 +182,7 @@ class _Promise(pymonad.monad.Monad):
     def __await__(self):
         return self.value(self._resolve, _reject).__await__()
 
-def Promise(function): # pylint: disable=invalid-name
+def Promise(function: PromiseFunction) -> _Promise[T]: # pylint: disable=invalid-name
     """ Constructs a Promise object for ordering concurrent computations.
 
     Example:
