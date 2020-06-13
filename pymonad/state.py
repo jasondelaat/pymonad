@@ -4,7 +4,7 @@
 # --------------------------------------------------------
 """ Implements the State monad. """
 
-from typing import Any, Callable, Generic, Tuple, TypeVar, Union
+from typing import Any, Callable, Generic, Tuple, TypeVar, Union # pylint: disable=unused-import
 
 import pymonad.monad
 import pymonad.tools

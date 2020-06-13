@@ -14,8 +14,8 @@ how to implement them properly.
 
 from typing import Callable, Generic, TypeVar, Union
 
-S = TypeVar('S')
-T = TypeVar('T')
+S = TypeVar('S') # pylint: disable=invalid-name
+T = TypeVar('T') # pylint: disable=invalid-name
 
 class Monad(Generic[T]):
     """
@@ -118,7 +118,9 @@ class Monad(Generic[T]):
         """ Applies 'function' to the contents of the functor and returns a new functor value. """
         raise NotImplementedError("'fmap' not defined.")
 
-    def then(self: 'Monad[S]', function: Union[Callable[[S], T], Callable[[S], 'Monad[T]']]) -> 'Monad[T]':
+    def then(
+            self: 'Monad[S]', function: Union[Callable[[S], T], Callable[[S], 'Monad[T]']]
+    ) -> 'Monad[T]':
         """ Combines the functionality of bind and fmap.
 
         Instead of worrying about whether to use bind or fmap,

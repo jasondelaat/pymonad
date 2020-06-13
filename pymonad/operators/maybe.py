@@ -21,7 +21,7 @@ Nothing = Maybe(None, False) # pylint: disable=invalid-name
 
 
 
-class Option(Maybe): # MonadAlias already in MRO from MonadOperators
+class Option(Maybe): # pylint: disable=too-many-ancestors
     """ An alias for the Maybe monad class. """
     def __repr__(self):
         return f'Some {self.value}' if self.monoid else 'Nothing'

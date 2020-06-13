@@ -22,7 +22,7 @@ move.
                    .then(knight_move)
                    .then(knight_move))
 """
-from typing import Any, Callable, Generic, List, TypeVar, Union
+from typing import Any, Callable, Generic, List, TypeVar, Union # pylint: disable=unused-import
 
 import pymonad.monad
 

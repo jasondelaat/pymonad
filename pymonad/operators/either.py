@@ -24,7 +24,7 @@ def Right(value): # pylint: disable=invalid-name
 
 
 
-class _Error(Either): # MonadAlias already in MRO from MonadOperators
+class _Error(Either): # pylint: disable=too-many-ancestors
     def __repr__(self):
         return f'Result: {self.value}' if self.is_right() else f'Error: {self.monoid[0]}'
 
