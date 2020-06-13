@@ -29,7 +29,7 @@ import pymonad.monad
 S = TypeVar('S') # pylint: disable=invalid-name
 T = TypeVar('T') # pylint: disable=invalid-name
 
-class _List(pymonad.monad.Monad, list, Generic[T]):
+class _List(pymonad.monad.Monad, Generic[T]):
     @classmethod
     def insert(cls, value: T) -> '_List[T]':
         return ListMonad(value)
