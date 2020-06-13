@@ -22,31 +22,38 @@ move.
                    .then(knight_move)
                    .then(knight_move))
 """
+from typing import Any, Callable, Generic, List, TypeVar, Union
+
 import pymonad.monad
 
-class _List(pymonad.monad.Monad, list):
+S = TypeVar('S') # pylint: disable=invalid-name
+T = TypeVar('T') # pylint: disable=invalid-name
+
+class _List(pymonad.monad.Monad, list, Generic[T]):
     @classmethod
-    def insert(cls, value):
+    def insert(cls, value: T) -> '_List[T]':
         return ListMonad(value)
 
-    def amap(self, monad_value):
+    def amap(self: '_List[Callable[[S], T]]', monad_value: '_List[S]') -> '_List[T]':
         result = []
         for function in self:
             for value in monad_value:
                 result.append(function(value))
         return ListMonad(*result)
 
-    def bind(self, kleisli_function):
+    def bind(self: '_List[S]', kleisli_function: Callable[[S], '_List[T]']) -> '_List[T]':
         return self.map(kleisli_function).join()
 
-    def join(self):
+    def join(self: '_List[_List[T]]') -> '_List[T]':
         """ Flattens a nested ListMonad instance one level. """
         return ListMonad(*[element for lists in self for element in lists])
 
-    def map(self, function):
+    def map(self: '_List[S]', function: Callable[[S], T]) -> '_List[T]':
         return ListMonad(*[function(x) for x in self])
 
-    def then(self, function):
+    def then(
+            self: '_List[S]', function: Union[Callable[[S], T], Callable[[S], '_List[T]']]
+    ) -> '_List[T]':
         try:
             return self.bind(function)
         except TypeError:
@@ -70,7 +77,7 @@ class _List(pymonad.monad.Monad, list):
     def __repr__(self):
         return str(self.value)
 
-def ListMonad(*elements): # pylint: disable=invalid-name
+def ListMonad(*elements: List[T]) -> _List[T]: # pylint: disable=invalid-name
     """ Creates an instance of the List monad.
 
     Args:
