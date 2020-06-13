@@ -4,8 +4,14 @@
 # --------------------------------------------------------
 """ Implements the State monad. """
 
+from typing import Any, Callable, Generic, Tuple, TypeVar, Union
+
 import pymonad.monad
 import pymonad.tools
+
+A = TypeVar('A') # pylint: disable=invalid-name
+B = TypeVar('B') # pylint: disable=invalid-name
+S = TypeVar('S') # pylint: disable=invalid-name
 
 @pymonad.tools.curry(3)
 def _bind(monad_value, kleisli_function, state):
@@ -22,27 +28,29 @@ def _bind_or_map(monad_value, function, state):
 def _map(monad_value, function, state):
     return (function(monad_value.value(state)), monad_value.monoid(state))
 
-class _State(pymonad.monad.Monad):
+class _State(pymonad.monad.Monad, Generic[S, A]):
     @classmethod
-    def insert(cls, value):
+    def insert(cls, value: A) -> '_State[Any, A]':
         """ See Monad.insert. """
         return State(lambda s: (value, s))
 
-    def amap(self, monad_value):
+    def amap(self: '_State[S, Callable[[A], B]]', monad_value: '_State[S, A]') -> '_State[S, B]':
         """ See Monad.amap. """
         return State(lambda s:
                      (self.value(s)(monad_value.value(s)),
                       monad_value.monoid(s)))
 
-    def bind(self, kleisli_function):
+    def bind(
+            self: '_State[S, A]', kleisli_function: Callable[[A], '_State[S, B]']
+    ) -> '_State[S, B]':
         """ See Monad.bind. """
         return State(_bind(self, kleisli_function)) # pylint: disable=no-value-for-parameter
 
-    def map(self, function):
+    def map(self: '_State[S, A]', function: Callable[[A], B]) -> '_State[S, B]':
         """ See Monad.map. """
         return State(_map(self, function)) # pylint: disable=no-value-for-parameter
 
-    def run(self, input_state):
+    def run(self: '_State[S, A]', input_state: S) -> Tuple[A, S]:
         """ Gives the state calculation an initial state and computes the result.
 
         Args:
@@ -54,10 +62,12 @@ class _State(pymonad.monad.Monad):
         """
         return self.value(input_state), self.monoid(input_state)
 
-    def then(self, function):
+    def then(
+            self: '_State[S, A]', function: Union[Callable[[A], B], Callable[[A], '_State[S, B]']]
+    ) -> '_State[S, B]':
         return State(_bind_or_map(self, function)) # pylint: disable=no-value-for-parameter
 
-def State(state_function): # pylint: disable=invalid-name
+def State(state_function: Callable[[S], A]) -> _State[S, A]: # pylint: disable=invalid-name
     """ The State monad constructor function.
 
     Args:
