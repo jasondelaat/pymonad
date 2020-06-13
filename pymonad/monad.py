@@ -12,7 +12,12 @@ insert. See the documentation for those methods for more information on
 how to implement them properly.
 """
 
-class Monad:
+from typing import Callable, Generic, TypeVar, Union
+
+S = TypeVar('S')
+T = TypeVar('T')
+
+class Monad(Generic[T]):
     """
     Represents a "context" in which calculations can be executed.
 
@@ -95,25 +100,25 @@ class Monad:
         return _Applicative(None, None) # We don't actually care about the inputs here
 
     @classmethod
-    def insert(cls, value):
+    def insert(cls, value: T) -> 'Monad[T]':
         """ Returns an instance of the Functor with 'value' in a minimum context.  """
         raise NotImplementedError
 
-    def amap(self, monad_value):
+    def amap(self: 'Monad[Callable[[S], T]]', monad_value: 'Monad[S]') -> 'Monad[T]':
         """ Applies the function stored in the functor to the value inside 'functor_value'
         returning a new functor value.
         """
         return monad_value.map(self.value)
 
-    def bind(self, kleisli_function):
+    def bind(self: 'Monad[S]', kleisli_function: Callable[[S], 'Monad[T]']) -> 'Monad[T]':
         """ Applies 'function' to the result of a previous monadic calculation. """
         raise NotImplementedError
 
-    def map(self, function):
+    def map(self: 'Monad[S]', function: Callable[[S], T]) -> 'Monad[T]':
         """ Applies 'function' to the contents of the functor and returns a new functor value. """
         raise NotImplementedError("'fmap' not defined.")
 
-    def then(self, function):
+    def then(self: 'Monad[S]', function: Union[Callable[[S], T], Callable[[S], 'Monad[T]']]) -> 'Monad[T]':
         """ Combines the functionality of bind and fmap.
 
         Instead of worrying about whether to use bind or fmap,
@@ -141,7 +146,7 @@ class Monad:
             return self.map(function)
 
 
-class MonadAlias(Monad):
+class MonadAlias(Monad[T]):
     """ Provides monad method overrides which make it easy to give a monad an alias.
 
     MonadAlias provides monad methods which call their base class but
