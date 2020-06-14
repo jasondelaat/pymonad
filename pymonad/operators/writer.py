@@ -3,9 +3,14 @@
 # Licensed under BSD 3-clause licence.
 # --------------------------------------------------------
 """ Adds operators to the Writer monad. """
+from typing import TypeVar
+
 import pymonad.monad
 import pymonad.operators.operators
 import pymonad.writer
 
-class Writer(pymonad.operators.operators.MonadOperators, pymonad.writer.Writer):
+M = TypeVar('M') # pylint: disable=invalid-name
+T = TypeVar('T') # pylint: disable=invalid-name
+
+class Writer(pymonad.operators.operators.MonadOperators, pymonad.writer.Writer[M, T]):
     """ See pymonad.operators.operators and pymonad.writer. """
