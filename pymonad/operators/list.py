@@ -3,14 +3,18 @@
 # Licensed under BSD 3-clause licence.
 # --------------------------------------------------------
 """ Adds operators to the List monad. """
+from typing import List, TypeVar
+
 import pymonad.list
 import pymonad.monad
 import pymonad.operators.operators
 
-class _List(pymonad.operators.operators.MonadOperators, pymonad.list._List): # pylint: disable=protected-access
+T = TypeVar('T') # pylint: disable=invalid-name
+
+class _List(pymonad.operators.operators.MonadOperators, pymonad.list._List[T]): # pylint: disable=protected-access
     """ See pymonad.operators.operators and pymonad.list. """
 
-def ListMonad(*elements): # pylint: disable=invalid-name
+def ListMonad(*elements: List[T]) -> _List[T]: # pylint: disable=invalid-name
     """ Creates an instance of the List monad.
 
     Args:
