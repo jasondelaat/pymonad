@@ -4,11 +4,17 @@
 # --------------------------------------------------------
 """ The tools module contains useful functions that don't really belong anywhere else. """
 
-from typing import Callable, List, Any
+from typing import Any, Callable, List, TypeVar
 
-def _curry_helper(number_of_arguments: int,
-                  function_to_curry: Callable,
-                  accumulated_arguments: List[Any]) -> Callable:
+import pymonad.monad as monad
+
+R = TypeVar('R') # pylint: disable=invalid-name
+S = TypeVar('S') # pylint: disable=invalid-name
+T = TypeVar('T') # pylint: disable=invalid-name
+
+def _curry_helper(
+        number_of_arguments: int, function_to_curry: Callable, accumulated_arguments: List[Any]
+) -> Callable:
     """ Builds a curried version of the supplied function and returns it to the caller.
 
     Args:
@@ -77,11 +83,13 @@ Returns:
     the desired number of arguments.
 """
 
-def identity(value):
+def identity(value: T) -> T:
     """ Returns it's input value unchanged. """
     return value
 
-def kleisli_compose(function_f, function_g):
+def kleisli_compose(
+        function_f: Callable[[R], monad.Monad[S]], function_g: Callable[[S], monad.Monad[T]]
+) -> Callable[[R], monad.Monad[T]]:
     """ Composes two Kleisli functions.
 
     Kleisli functions are functions which take as input a 'bare' value
