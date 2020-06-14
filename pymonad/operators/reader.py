@@ -3,14 +3,19 @@
 # Licensed under BSD 3-clause licence.
 # --------------------------------------------------------
 """ Adds operators to the Reader monad. """
+from typing import Callable, TypeVar
+
 import pymonad.monad
 import pymonad.operators.operators
 import pymonad.reader
 
-class _Reader(pymonad.operators.operators.MonadOperators, pymonad.reader._Reader): # pylint: disable=protected-access
+R = TypeVar('R') # pylint: disable=invalid-name
+T = TypeVar('T') # pylint: disable=invalid-name
+
+class _Reader(pymonad.operators.operators.MonadOperators, pymonad.reader._Reader[R, T]): # pylint: disable=protected-access
     """ See pymonad.operators.operators and pymonad.reader. """
 
-def Reader(function): # pylint: disable=invalid-name
+def Reader(function: Callable[[R], T]) -> _Reader[R, T]: # pylint: disable=invalid-name
     """ Creates an instance of the Reader monad.
 
     Args:
