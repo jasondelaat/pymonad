@@ -3,14 +3,19 @@
 # Licensed under BSD 3-clause licence.
 # --------------------------------------------------------
 """ Adds operators to the State monad. """
+from typing import Callable, Tuple, TypeVar
+
 import pymonad.monad
 import pymonad.operators.operators
 import pymonad.state
 
-class _State(pymonad.operators.operators.MonadOperators, pymonad.state._State): # pylint: disable=protected-access
+S = TypeVar('S') # pylint: disable=invalid-name
+T = TypeVar('T') # pylint: disable=invalid-name
+
+class _State(pymonad.operators.operators.MonadOperators, pymonad.state._State[S, T]): # pylint: disable=protected-access
     """ See pymonad.operators.operators and pymonad.state. """
 
-def State(state_function): # pylint: disable=invalid-name
+def State(state_function: Callable[[S], Tuple[T, S]]) -> _State[S, T]: # pylint: disable=invalid-name
     """ The State monad constructor function.
 
     Args:
