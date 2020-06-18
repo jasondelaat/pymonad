@@ -27,9 +27,48 @@ mplus is concatenation.
 from typing import Any, Generic, List, TypeVar, Union # pylint: disable=unused-import
 
 T = TypeVar('T') # pylint: disable=invalid-name
-MonoidT = Union['Monoid[T]', 'IDENTITY', int, List, float, str]
+MonoidT = Union['Monoid[T]', int, List, float, str]
 
-class _MonoidIdentityMeta(type):
+class Monoid(Generic[T]):
+    """ Abstract base class for Monoid instances.
+
+    To implement a monoid instance, users should create a sub-class of
+    Monoid and implement the mzero and mplus methods. Additionally, it
+    is the implementers responsibility to ensure that the
+    implementation adheres to the closure, identity and associativity
+    laws for monoids.
+    """
+
+    def __init__(self, value: T) -> None:
+        self.value = value
+
+    def __add__(self: MonoidT, other: MonoidT) -> MonoidT:
+        raise NotImplementedError
+
+    def __eq__(self: Union['IDENTITY', 'Monoid[T]'], other: Union['IDENTITY', 'Monoid[T]']) -> bool:
+        try:
+            if self is IDENTITY and other is IDENTITY: # pylint: disable=no-else-return
+                return True
+            else:
+                return self.value == other.value
+        except AttributeError:
+            return False
+
+    @staticmethod
+    def identity_element() -> 'Monoid[Any]':
+        """
+        A static method which simply returns the identity value for the monoid type.
+        This method must be overridden in subclasses to create custom monoids.
+        See also: the mzero function.
+
+        """
+        raise NotImplementedError
+
+class _MonoidIdentityMeta(type, Monoid):
+    @staticmethod
+    def identity_element():
+        raise AttributeError('Monoid IDENTITY has no identity_element.')
+
     def __add__(cls, other):
         return other
 
@@ -54,35 +93,6 @@ class IDENTITY(metaclass=_MonoidIdentityMeta): # pylint: disable=too-few-public-
     """
     def __new__(cls):
         return IDENTITY
-
-class Monoid(Generic[T]):
-    """ Abstract base class for Monoid instances.
-
-    To implement a monoid instance, users should create a sub-class of
-    Monoid and implement the mzero and mplus methods. Additionally, it
-    is the implementers responsibility to ensure that the
-    implementation adheres to the closure, identity and associativity
-    laws for monoids.
-    """
-
-    def __init__(self, value: T) -> None:
-        self.value = value
-
-    def __add__(self: MonoidT, other: MonoidT) -> MonoidT:
-        raise NotImplementedError
-
-    def __eq__(self: Union[IDENTITY, 'Monoid[T]'], other: Union[IDENTITY, 'Monoid[T]']) -> bool:
-        return self.value == other.value
-
-    @staticmethod
-    def identity_element() -> 'Monoid[Any]':
-        """
-        A static method which simply returns the identity value for the monoid type.
-        This method must be overridden in subclasses to create custom monoids.
-        See also: the mzero function.
-
-        """
-        raise NotImplementedError
 
 def mconcat(monoid_list: List[MonoidT]) -> MonoidT:
     """
