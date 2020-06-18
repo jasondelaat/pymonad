@@ -6,6 +6,7 @@ import unittest
 
 import common_tests
 from pymonad.list import ListMonad
+from pymonad.monoid import IDENTITY
 
 class ListTests(unittest.TestCase):
     def test_repr(self):
@@ -50,3 +51,41 @@ class ListMonadTests(common_tests.MonadTests, unittest.TestCase):
 class ListThenTests(common_tests.ThenTests, unittest.TestCase):
     def setUp(self):
         self._class = ListMonad
+
+class ListMonoidTests(unittest.TestCase):
+    def test_identity_element(self):
+        self.assertEqual(
+            ListMonad.identity_element(),
+            ListMonad()
+        )
+
+    def test_left_identity(self):
+        self.assertEqual(
+            ListMonad.identity_element() + ListMonad(1, 2, 3),
+            ListMonad(1, 2, 3)
+        )
+        
+    def test_right_identity(self):
+        self.assertEqual(
+            ListMonad(1, 2, 3),
+            ListMonad(1, 2, 3) + ListMonad.identity_element()
+        )
+
+    def test_associativity(self):
+        self.assertEqual(
+            (ListMonad(1, 2, 3) + ListMonad(4, 5, 6)) + ListMonad(7, 8, 9),
+            ListMonad(1, 2, 3) + (ListMonad(4, 5, 6) + ListMonad(7, 8, 9))
+        )
+
+    def test_left_identity_with_IDENTITY(self):
+        self.assertEqual(
+            ListMonad.identity_element() + ListMonad(1, 2, 3),
+            IDENTITY + ListMonad(1, 2, 3)
+        )
+        
+    def test_right_identity_with_IDENTITY(self):
+        self.assertEqual(
+            ListMonad(1, 2, 3) + ListMonad.identity_element(),
+            ListMonad(1, 2, 3) + IDENTITY
+        )
+        

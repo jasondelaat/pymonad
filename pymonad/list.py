@@ -25,14 +25,19 @@ move.
 from typing import Any, Callable, Generic, List, TypeVar, Union # pylint: disable=unused-import
 
 import pymonad.monad
+import pymonad.monoid
 
 S = TypeVar('S') # pylint: disable=invalid-name
 T = TypeVar('T') # pylint: disable=invalid-name
 
-class _List(pymonad.monad.Monad, Generic[T]):
+class _List(pymonad.monad.Monad, pymonad.monoid.Monoid, Generic[T]):
     @classmethod
     def insert(cls, value: T) -> '_List[T]':
         return ListMonad(value)
+
+    @staticmethod
+    def identity_element() -> '_List[Any]':
+        return ListMonad()
 
     def amap(self: '_List[Callable[[S], T]]', monad_value: '_List[S]') -> '_List[T]':
         result = []
@@ -58,6 +63,12 @@ class _List(pymonad.monad.Monad, Generic[T]):
             return self.bind(function)
         except TypeError:
             return self.map(function)
+
+    def __add__(self, other):
+        if other is pymonad.monoid.IDENTITY: # pylint: disable=no-else-return
+            return self
+        else:
+            return ListMonad(*(self.value + other.value))
 
     def __eq__(self, other):
         return self.value == other.value
@@ -91,3 +102,4 @@ def ListMonad(*elements: List[T]) -> _List[T]: # pylint: disable=invalid-name
 
 ListMonad.insert = _List.insert
 ListMonad.apply = _List.apply
+ListMonad.identity_element = _List.identity_element
