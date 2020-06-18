@@ -8,13 +8,13 @@ import pymonad.monoid as monoid
 
 class MZero_Tests(unittest.TestCase):
     def test_class_and_object_are_the_same(self):
-        self.assertEqual(monoid.ZERO, monoid.ZERO())
+        self.assertEqual(monoid.IDENTITY, monoid.IDENTITY())
 
     def test_left_identity(self):
-        self.assertEqual(monoid.ZERO + 10, 10)
+        self.assertEqual(monoid.IDENTITY + 10, 10)
 
     def test_right_identity(self):
-        self.assertEqual(10 + monoid.ZERO, 10)
+        self.assertEqual(10 + monoid.IDENTITY, 10)
 
     def test_repr(self):
-        self.assertEqual(str(monoid.ZERO), 'MZERO')
+        self.assertEqual(str(monoid.IDENTITY), 'IDENTITY')

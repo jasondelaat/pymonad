@@ -25,12 +25,12 @@ monoid with a defined + (__add__) operator.
     # logged_arithmetic = (2, "Called function 'add' with arguments 1 and 0. Result: 1
     #                     Called function 'mul' with arguments 2 and 1. Result: 2")
 """
-from typing import Callable, Generic, List, TypeVar
+from typing import Callable, Generic, TypeVar
 
 import pymonad.monad
 import pymonad.monoid
 
-M = TypeVar('M', int, str, List, pymonad.monoid.Monoid, pymonad.monoid.ZERO) # pylint: disable=invalid-name
+M = TypeVar('M', bound=pymonad.monoid.MonoidT) # pylint: disable=invalid-name
 S = TypeVar('S') # pylint: disable=invalid-name
 T = TypeVar('T') # pylint: disable=invalid-name
 
@@ -39,7 +39,7 @@ class Writer(pymonad.monad.Monad, Generic[M, T]):
     @classmethod
     def insert(cls, value: T) -> 'Writer[M, T]':
         """ See Monad.insert. """
-        return Writer(value, pymonad.monoid.ZERO)
+        return Writer(value, pymonad.monoid.IDENTITY)
 
     def bind(
             self: 'Writer[M, S]', kleisli_function: Callable[[S], 'Writer[M, T]']

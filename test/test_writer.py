@@ -18,11 +18,11 @@ class WriterTests(unittest.TestCase):
     def test_insert(self):
         self.assertEqual(
             Writer.insert(1),
-            Writer(1, pymonad.monoid.ZERO)
+            Writer(1, pymonad.monoid.IDENTITY)
         )
         self.assertEqual(
             str(Writer.insert(1)),
-            '(1, MZERO)'
+            '(1, IDENTITY)'
         )
 
 class WriterFunctor(common_tests.FunctorTests, unittest.TestCase):
