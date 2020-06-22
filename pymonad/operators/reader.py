@@ -12,7 +12,7 @@ import pymonad.reader
 R = TypeVar('R') # pylint: disable=invalid-name
 T = TypeVar('T') # pylint: disable=invalid-name
 
-class _Reader(pymonad.operators.operators.MonadOperators, pymonad.reader._Reader[R, T]): # pylint: disable=protected-access
+class _Reader(pymonad.operators.operators.MonadOperators, pymonad.reader._Reader[R, T]): # pylint: disable=protected-access, abstract-method
     """ See pymonad.operators.operators and pymonad.reader. """
 
 def Reader(function: Callable[[R], T]) -> _Reader[R, T]: # pylint: disable=invalid-name

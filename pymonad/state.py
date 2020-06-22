@@ -32,23 +32,24 @@ class _State(pymonad.monad.Monad, Generic[S, A]):
     @classmethod
     def insert(cls, value: A) -> '_State[Any, A]':
         """ See Monad.insert. """
-        return State(lambda s: (value, s))
+        return cls(lambda s: value, lambda s: s)
 
     def amap(self: '_State[S, Callable[[A], B]]', monad_value: '_State[S, A]') -> '_State[S, B]':
         """ See Monad.amap. """
-        return State(lambda s:
-                     (self.value(s)(monad_value.value(s)),
-                      monad_value.monoid(s)))
+        return self.__class__(lambda s: self.value(s)(monad_value.value(s)),
+                              lambda s: monad_value.monoid(s)) # pylint: disable=unnecessary-lambda
 
     def bind(
             self: '_State[S, A]', kleisli_function: Callable[[A], '_State[S, B]']
     ) -> '_State[S, B]':
         """ See Monad.bind. """
-        return State(_bind(self, kleisli_function)) # pylint: disable=no-value-for-parameter
+        state_function = _bind(self, kleisli_function) # pylint: disable=no-value-for-parameter
+        return self.__class__(lambda s: state_function(s)[0], lambda s: state_function(s)[1])
 
     def map(self: '_State[S, A]', function: Callable[[A], B]) -> '_State[S, B]':
         """ See Monad.map. """
-        return State(_map(self, function)) # pylint: disable=no-value-for-parameter
+        state_function = _map(self, function) # pylint: disable=no-value-for-parameter
+        return self.__class__(lambda s: state_function(s)[0], lambda s: state_function(s)[1]) # pylint: disable=not-callable
 
     def run(self: '_State[S, A]', input_state: S) -> Tuple[A, S]:
         """ Gives the state calculation an initial state and computes the result.

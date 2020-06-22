@@ -33,7 +33,7 @@ T = TypeVar('T') # pylint: disable=invalid-name
 class _List(pymonad.monad.Monad, pymonad.monoid.Monoid, Generic[T]):
     @classmethod
     def insert(cls, value: T) -> '_List[T]':
-        return ListMonad(value)
+        return cls([value], None)
 
     @staticmethod
     def identity_element() -> '_List[Any]':
@@ -44,17 +44,18 @@ class _List(pymonad.monad.Monad, pymonad.monoid.Monoid, Generic[T]):
         for function in self:
             for value in monad_value:
                 result.append(function(value))
-        return ListMonad(*result)
+        return self.__class__(result, None)
 
     def bind(self: '_List[S]', kleisli_function: Callable[[S], '_List[T]']) -> '_List[T]':
         return self.map(kleisli_function).join()
 
     def join(self: '_List[_List[T]]') -> '_List[T]':
         """ Flattens a nested ListMonad instance one level. """
-        return ListMonad(*[element for lists in self for element in lists])
+        return self.__class__([element for lists in self for element in lists],
+                              None) # pytype: disable=not-callable
 
     def map(self: '_List[S]', function: Callable[[S], T]) -> '_List[T]':
-        return ListMonad(*[function(x) for x in self])
+        return self.__class__([function(x) for x in self], None)
 
     def then(
             self: '_List[S]', function: Union[Callable[[S], T], Callable[[S], '_List[T]']]
@@ -68,16 +69,19 @@ class _List(pymonad.monad.Monad, pymonad.monoid.Monoid, Generic[T]):
         if other is pymonad.monoid.IDENTITY: # pylint: disable=no-else-return
             return self
         else:
-            return ListMonad(*(self.value + other.value))
+            return self.__class__((self.value + other.value), None)
 
     def __eq__(self, other):
         return self.value == other.value
 
     def __getitem__(self, index):
+        result = self.value.__getitem__(index)
         try:
-            return ListMonad(*self.value.__getitem__(index))
+            if len(result) > 0:
+                result_list = self.__class__(result, None)
+            return result_list
         except TypeError:
-            return self.value[index]
+            return result
 
     def __iter__(self):
         return iter(self.value)

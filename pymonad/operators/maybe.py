@@ -11,7 +11,7 @@ import pymonad.operators.operators
 
 T = TypeVar('T') # pylint: disable=invalid-name
 
-class Maybe(pymonad.operators.operators.MonadOperators, pymonad.maybe.Maybe[T]):
+class Maybe(pymonad.operators.operators.MonadOperators, pymonad.maybe.Maybe[T]): # pylint: disable=abstract-method
     """ See pymonad.operators.operators and pymonad.maybe. """
 
 def Just(value: T) -> Maybe[T]: # pylint: disable=invalid-name
@@ -25,7 +25,7 @@ Nothing = Maybe(None, False) # pylint: disable=invalid-name
 
 
 
-class Option(Maybe[T]): # pylint: disable=too-many-ancestors
+class Option(Maybe[T]): # pylint: disable=too-many-ancestors, abstract-method
     """ An alias for the Maybe monad class. """
     def __repr__(self):
         return f'Some {self.value}' if self.monoid else 'Nothing' # pylint: disable=no-member

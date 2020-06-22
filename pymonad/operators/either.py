@@ -12,7 +12,7 @@ import pymonad.operators.operators
 S = TypeVar('S') # pylint: disable=invalid-name
 T = TypeVar('T') # pylint: disable=invalid-name
 
-class Either(pymonad.operators.operators.MonadOperators, pymonad.either.Either[S, T]):
+class Either(pymonad.operators.operators.MonadOperators, pymonad.either.Either[S, T]): # pylint: disable=abstract-method
     """ See pymonad.operators.operators and pymonad.either. """
 
 def Left(value: S) -> Either[S, Any]: # pylint: disable=invalid-name
@@ -29,7 +29,7 @@ def Right(value: T) -> Either[Any, T]: # pylint: disable=invalid-name
 
 
 
-class _Error(Either[S, T]): # pylint: disable=too-many-ancestors
+class _Error(Either[S, T]): # pylint: disable=too-many-ancestors, abstract-method
     def __repr__(self):
         return f'Result: {self.value}' if self.is_right() else f'Error: {self.monoid[0]}' # pylint: disable=no-member
 

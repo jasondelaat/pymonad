@@ -39,7 +39,7 @@ class Either(pymonad.monad.Monad, Generic[M, T]):
     @classmethod
     def insert(cls, value: T) -> 'Either[Any, T]':
         """ See Monad.insert """
-        return Right(value)
+        return cls(value, (None, True))
 
     def amap(self: 'Either[M, Callable[[S], T]]', monad_value: 'Either[M, S]') -> 'Either[M, T]':
         if self.is_left(): # pylint: disable=no-else-return
@@ -47,7 +47,7 @@ class Either(pymonad.monad.Monad, Generic[M, T]):
         elif monad_value.is_left(): # pylint: disable=no-else-return
             return monad_value
         else:
-            return Right(self.value(monad_value.value))
+            return self.__class__(self.value(monad_value.value), (None, True))
 
     def bind(
             self: 'Either[M, S]', kleisli_function: Callable[[S], 'Either[M, T]']
@@ -59,7 +59,7 @@ class Either(pymonad.monad.Monad, Generic[M, T]):
             try:
                 return kleisli_function(self.value)
             except Exception as e: # pylint: disable=invalid-name, broad-except
-                return Left(e)
+                return self.__class__(None, (e, False))
 
     def is_left(self) -> bool:
         """ Returns True if this Either instance was created with the 'Left' function. """
@@ -75,9 +75,9 @@ class Either(pymonad.monad.Monad, Generic[M, T]):
             return self
         else:
             try:
-                return Right(function(self.value))
+                return self.__class__(function(self.value), (None, True))
             except Exception as e: # pylint: disable=invalid-name, broad-except
-                return Left(e)
+                return self.__class__(None, (e, False))
 
     def __eq__(self, other):
         """ Checks equality of Maybe objects.
@@ -105,7 +105,7 @@ def Right(value: T) -> Either[Any, T]: # pylint: disable=invalid-name
 
 
 
-class _Error(pymonad.monad.MonadAlias, Either[M, T]):
+class _Error(Either[M, T]):
     def __repr__(self):
         return f'Result: {self.value}' if self.is_right() else f'Error: {self.monoid[0]}'
 

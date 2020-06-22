@@ -23,7 +23,7 @@ Nothing. In this case, we need to override those constructors as well:
 """
 import pymonad.monad
 
-class MonadOperators(pymonad.monad.MonadAlias):
+class MonadOperators(pymonad.monad.Monad): # pylint: disable=abstract-method
     """ Defines MonadOperators class.
 
     MonadOperators is a MonadAlias which is used to add operators for

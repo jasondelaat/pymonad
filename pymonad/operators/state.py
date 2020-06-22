@@ -12,7 +12,7 @@ import pymonad.state
 S = TypeVar('S') # pylint: disable=invalid-name
 T = TypeVar('T') # pylint: disable=invalid-name
 
-class _State(pymonad.operators.operators.MonadOperators, pymonad.state._State[S, T]): # pylint: disable=protected-access
+class _State(pymonad.operators.operators.MonadOperators, pymonad.state._State[S, T]): # pylint: disable=protected-access, abstract-method
     """ See pymonad.operators.operators and pymonad.state. """
 
 def State(state_function: Callable[[S], Tuple[T, S]]) -> _State[S, T]: # pylint: disable=invalid-name

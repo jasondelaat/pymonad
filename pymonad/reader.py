@@ -33,24 +33,24 @@ def _map(function_f, function_g, read_only):
 
 class _Reader(pymonad.monad.Monad, Generic[R, T]):
     @classmethod
-    def insert(cls, value: T) -> '_Reader[Any, T]':
-        return Reader(lambda r: value)
+    def insert(cls, value):
+        return cls(lambda r: value, None)
 
     def amap(self: '_Reader[R, Callable[[S], T]]', monad_value: '_Reader[R, S]') -> '_Reader[R, T]':
-        return Reader(lambda r: self(r)(monad_value(r)))
+        return self.__class__(lambda r: self(r)(monad_value(r)), None)
 
     def bind(
             self: '_Reader[R, S]', kleisli_function: Callable[[S], '_Reader[R, T]']
     ) -> '_Reader[R, T]':
-        return Reader(_bind(kleisli_function, self)) # pylint: disable=no-value-for-parameter
+        return self.__class__(_bind(kleisli_function, self), None) # pylint: disable=no-value-for-parameter
 
     def map(self: '_Reader[R, S]', function: Callable[[S], T]) -> '_Reader[R, T]':
-        return Reader(_map(function, self)) # pylint: disable=no-value-for-parameter
+        return self.__class__(_map(function, self), None) # pylint: disable=no-value-for-parameter
 
     def then(
             self: '_Reader[R, S]', function: Union[Callable[[S], T], Callable[[S], '_Reader[R, T]']]
     ) -> '_Reader[R, T]':
-        return Reader(_bind_or_map(function, self)) # pylint: disable=no-value-for-parameter
+        return self.__class__(_bind_or_map(function, self), None) # pylint: disable=no-value-for-parameter
 
     def __call__(self, arg: R) -> T:
         return self.value(arg)
@@ -106,7 +106,7 @@ def Compose(function: Callable[[R], T]) -> _Reader[R, T]: # pylint: disable=inva
 
 
 
-class _Pipe(pymonad.monad.MonadAlias, _Reader[R, T]):
+class _Pipe(_Reader, Generic[R, T]):
     def flush(self):
         """ Calls the composed Pipe function returning  the embedded result.
 

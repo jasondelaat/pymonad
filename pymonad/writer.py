@@ -39,18 +39,18 @@ class Writer(pymonad.monad.Monad, Generic[M, T]):
     @classmethod
     def insert(cls, value: T) -> 'Writer[M, T]':
         """ See Monad.insert. """
-        return Writer(value, pymonad.monoid.IDENTITY)
+        return cls(value, pymonad.monoid.IDENTITY)
 
     def bind(
             self: 'Writer[M, S]', kleisli_function: Callable[[S], 'Writer[M, T]']
     ) -> 'Writer[M, T]':
         """ See Monad.bind. """
         result = kleisli_function(self.value)
-        return Writer(result.value, self.monoid + result.monoid)
+        return self.__class__(result.value, self.monoid + result.monoid)
 
     def map(self: 'Writer[M, S]', function: Callable[[S], T]) -> 'Writer[M, T]':
         """ See Monad.map. """
-        return Writer(function(self.value), self.monoid)
+        return self.__class__(function(self.value), self.monoid)
 
     def __eq__(self, other):
         return self.value == other.value and self.monoid == other.monoid

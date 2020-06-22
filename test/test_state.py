@@ -8,7 +8,7 @@ import common_tests
 import pymonad
 from pymonad.state import _State
 
-class EqState(pymonad.monad.MonadAlias, _State):
+class EqState(_State):
     def __eq__(self, other):
         try:
             return self.run(0) == other.run(0)

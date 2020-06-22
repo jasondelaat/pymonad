@@ -33,7 +33,7 @@ class Maybe(pymonad.monad.Monad, Generic[T]):
     @classmethod
     def insert(cls, value: T) -> 'Maybe[T]':
         """ See Monad.insert """
-        return Just(value)
+        return cls(value, True)
 
     def amap(self: 'Maybe[Callable[[S], T]]', monad_value: 'Maybe[S]') -> 'Maybe[T]':
         """ See Monad.amap"""
@@ -66,7 +66,7 @@ class Maybe(pymonad.monad.Monad, Generic[T]):
             return self
         else:
             try:
-                return Just(function(self.value))
+                return self.__class__(function(self.value), True) # pytype: disable=not-callable
             except: # pylint: disable=bare-except
                 return Nothing
 
@@ -96,7 +96,7 @@ Nothing: Maybe[Any] = Maybe(None, False) # pylint: disable=invalid-name
 
 
 
-class Option(pymonad.monad.MonadAlias, Maybe[T]): # MonadAlias must be the first parent class
+class Option(Maybe[T]): # MonadAlias must be the first parent class
     """ An alias for the Maybe monad class. """
     def __repr__(self):
         return f'Some {self.value}' if self.monoid else 'Nothing'
