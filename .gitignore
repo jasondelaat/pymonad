@@ -2,7 +2,7 @@
 *.pyc
 *.sw*
 *.html
-*.org
+project.org
 build
 install-env
 MANIFEST
