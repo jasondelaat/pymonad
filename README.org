@@ -1,0 +1,112 @@
+#+title: PyMonad
+
+PyMonad implements data structures typically available in pure
+functional or functional first programming languages like Haskell and
+F#. Included are Monad and Monoid data types with several common
+monads included - such as Maybe and State - as well as some useful
+tools such as the @curry decorator for defining curried
+functions. PyMonad 2.0.x represents and almost complete re-write of
+the library with a simpler, more consistent interface as well as type
+annotations to help ensure correct usage.
+
+** Getting Started
+
+These instructions will get you a copy of the project up and running
+on your local machine for development and testing purposes.
+
+*** Prerequisites
+    PyMonad requires Python 3.7+. If installing via =pip= then you
+    will also need [[https://pypi.org/project/pip/][Pip]] and [[https://pypi.org/project/wheel/][Wheel]] installed. See those projects for
+    more information on installing them if necessary.
+    
+    Potential contributors should additionally install [[https://pypi.org/project/pylint/][pylint]] and
+    [[https://pypi.org/project/pytype/][pytype]] to ensure their code adheres to common style conventions.
+
+*** Installing
+**** From the Python Package Index (PyPI) with pip
+     From a command line run:
+     #+begin_src bash
+       pip install PyMonad
+     #+end_src
+     
+**** Manual Build from PyPI
+     Download the project files from
+     https://pypi.org/project/PyMonad/#files and from the project
+     directory run:
+
+     #+begin_src bash
+       python setup.py install
+     #+end_src
+     
+     If that doesn't work you may need to run the following instead.
+
+     #+begin_src bash
+       python3 setup.py install
+     #+end_src
+
+**** From BitBucket
+     Clone the project repository:
+
+     #+begin_src bash
+       git clone https://bitbucket.org/jason_delaat/pymonad.git
+     #+end_src
+     
+     Then from the project directory run =setup.py= as for the manual
+     build instructions above.
+     
+**** Example Usage
+     The following example imports the =tools= module and uses the
+     =curry= function to define a curried addition function.
+     
+     #+begin_src python
+       import pymonad.tools
+
+       @pymonad.tools.curry(2) # Pass the expected number of arguments to the curry function.
+       def add(x, y):
+	   return x + y
+
+       # We can call add with all of it's arguments...
+       print(add(2, 3)) # Prints '5'
+
+       # ...or only some of them.
+       add2 = add(2)  # Creates a new function expecting a single arguments
+       print(add2(3)) # Also prints '5'
+     #+end_src
+     
+**** Next Steps
+
+** Running the tests
+*** Unit Tests
+    These tests primarily ensure that the defined monads and monoids
+    obey the required mathematical laws.
+
+    On most *nix systems you should be able to run the automated tests
+    by typing the following at the command line.
+
+    #+begin_src bash
+     ./run_tests.sh
+    #+end_src
+   
+    However, =run_tests.sh= is just a convenience. If the above doesn't
+    work the following should:
+
+    #+begin_src bash
+     python3 -m unittest discover test/
+    #+end_src
+
+*** Style Tests
+    Contributors only need to run =pylint= and =pytype= over their
+    code and ensure that there are no glaring style or type
+    errors. PyMonad (mostly) attempts to adhere to the [[https://google.github.io/styleguide/pyguide.html][Google Python Style Guide]] 
+    and includes type hinting according to [[https://www.python.org/dev/peps/pep-0484/][PEP 484]].
+
+    In general, don't disable =pylint= or =pytype= errors for the
+    whole project, instead disable them via comments in the code. See
+    the existing code for examples of errors which can be disabled.
+
+** Authors
+   *Jason DeLaat* - /Primary Author\/Maintainer/ - https://bitbucket.org/jason_delaat/
+
+** License
+   This project is licensed under the 3-Clause BSD License. See
+   [[LICENSE.rst][LICENSE.rst]] for details.
