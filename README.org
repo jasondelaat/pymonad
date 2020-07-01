@@ -109,4 +109,4 @@ on your local machine for development and testing purposes.
 
 ** License
    This project is licensed under the 3-Clause BSD License. See
-   [[LICENSE.rst][LICENSE.rst]] for details.
+   [[./LICENSE.rst][LICENSE.rst]] for details.
