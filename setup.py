@@ -1,22 +1,29 @@
-from distutils.core import setup
+import setuptools
 
-setup(
+with open('README.rst', 'r') as readme:
+    long_description = readme.read()
+
+with open('LICENSE.rst', 'r') as license_file:
+    license_text = license_file.read()
+
+setuptools.setup(
     name='PyMonad',
-    version='1.3',
+    version='2.0.0',
     author='Jason DeLaat',
     author_email='jason.develops@gmail.com',
-    packages=['pymonad', 'pymonad.test'],
+    packages=setuptools.find_packages(),
     url='https://bitbucket.org/jason_delaat/pymonad',
-    license=open('LICENSE.txt').read(),
-    description='Collection of classes for programming with functors, applicative functors and monads.',
-    long_description=open('README.txt').read() + open("CHANGES.txt").read(),
-	classifiers=[ "Intended Audience :: Developers"
-				, "License :: OSI Approved :: BSD License"
-				, "Operating System :: OS Independent"
-				, "Programming Language :: Python :: 2.7"
-				, "Programming Language :: Python :: 3"
-				, "Topic :: Software Development"
-				, "Topic :: Software Development :: Libraries"
-				, "Topic :: Utilities"
-				],
+    license=license_text,
+    description='Data structures and utilities for monadic style functional programming.',
+    long_description= long_description,
+    long_description_content_type='text/x-rst',
+    classifiers=[ "Intended Audience :: Developers"
+                  , "License :: OSI Approved :: BSD License"
+                  , "Operating System :: OS Independent"
+                  , "Programming Language :: Python :: 3"
+                  , "Topic :: Software Development"
+                  , "Topic :: Software Development :: Libraries"
+                  , "Topic :: Utilities"
+    ],
+    python_requires='>=3.7',
 )
