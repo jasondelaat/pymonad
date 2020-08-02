@@ -23,6 +23,8 @@ on your local machine for development and testing purposes.
     [[https://pypi.org/project/pytype/][pytype]] to ensure their code adheres to common style conventions.
 
 *** Installing
+    /Note: version PyMonad 2.x.x is not yet available on PyPI. Check back soon./
+    
 **** From the Python Package Index (PyPI) with pip
      From a command line run:
      #+begin_src bash
@@ -44,11 +46,11 @@ on your local machine for development and testing purposes.
        python3 setup.py install
      #+end_src
 
-**** From BitBucket
+**** From github
      Clone the project repository:
 
      #+begin_src bash
-       git clone https://bitbucket.org/jason_delaat/pymonad.git
+       git clone https://github.com/jasondelaat/pymonad.git
      #+end_src
      
      Then from the project directory run =setup.py= as for the manual
@@ -105,8 +107,7 @@ on your local machine for development and testing purposes.
     the existing code for examples of errors which can be disabled.
 
 ** Authors
-   *Jason DeLaat* - /Primary Author\/Maintainer/ - https://bitbucket.org/jason_delaat/
-
+   *Jason DeLaat* - /Primary Author/Maintainer/ - https://github.com/jasondelaat/pymonad
 ** License
    This project is licensed under the 3-Clause BSD License. See
    [[./LICENSE.rst][LICENSE.rst]] for details.
