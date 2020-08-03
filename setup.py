@@ -8,7 +8,7 @@ with open('LICENSE.rst', 'r') as license_file:
 
 setuptools.setup(
     name='PyMonad',
-    version='2.0.0',
+    version='2.0.3',
     author='Jason DeLaat',
     author_email='jason.develops@gmail.com',
     packages=setuptools.find_packages(),
