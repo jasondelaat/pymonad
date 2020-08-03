@@ -1,4 +1,4 @@
-#+title: PyMonad
+#+options: author:nil
 
 PyMonad implements data structures typically available in pure
 functional or functional first programming languages like Haskell and
@@ -23,8 +23,6 @@ on your local machine for development and testing purposes.
     [[https://pypi.org/project/pytype/][pytype]] to ensure their code adheres to common style conventions.
 
 *** Installing
-    /Note: version PyMonad 2.x.x is not yet available on PyPI. Check back soon./
-    
 **** From the Python Package Index (PyPI) with pip
      From a command line run:
      #+begin_src bash

@@ -3,9 +3,6 @@ import setuptools
 with open('README.rst', 'r') as readme:
     long_description = readme.read()
 
-with open('LICENSE.rst', 'r') as license_file:
-    license_text = license_file.read()
-
 setuptools.setup(
     name='PyMonad',
     version='2.0.3',
@@ -13,7 +10,7 @@ setuptools.setup(
     author_email='jason.develops@gmail.com',
     packages=setuptools.find_packages(),
     url='https://bitbucket.org/jason_delaat/pymonad',
-    license=license_text,
+    license='BSD-3-Clause',
     description='Data structures and utilities for monadic style functional programming.',
     long_description= long_description,
     long_description_content_type='text/x-rst',

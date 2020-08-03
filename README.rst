@@ -1,8 +1,3 @@
-=======
-PyMonad
-=======
-
-    :Author: Jason
 
 .. contents::
 
@@ -33,8 +28,6 @@ Potential contributors should additionally install `pylint <https://pypi.org/pro
 
 1.2 Installing
 ~~~~~~~~~~~~~~
-
-*Note: version PyMonad 2.x.x is not yet available on PyPI. Check back soon.*
 
 1.2.1 From the Python Package Index (PyPI) with pip
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
