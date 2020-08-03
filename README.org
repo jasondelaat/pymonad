@@ -77,6 +77,11 @@ on your local machine for development and testing purposes.
      
 **** Next Steps
 
+     The PyMonad documentation is a work in progress. For tutorials,
+     how-to, and more head over to the [[https://jasondelaat.github.io/pymonad_docs/][PyMonad Documentation Project]].
+     If you'd like to contribute visit the documentation repository
+     [[https://github.com/jasondelaat/pymonad_docs][here]].
+
 ** Running the tests
 *** Unit Tests
     These tests primarily ensure that the defined monads and monoids

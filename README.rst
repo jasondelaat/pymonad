@@ -34,6 +34,8 @@ Potential contributors should additionally install `pylint <https://pypi.org/pro
 1.2 Installing
 ~~~~~~~~~~~~~~
 
+*Note: version PyMonad 2.x.x is not yet available on PyPI. Check back soon.*
+
 1.2.1 From the Python Package Index (PyPI) with pip
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -60,14 +62,14 @@ If that doesn't work you may need to run the following instead.
 
     python3 setup.py install
 
-1.2.3 From BitBucket
-^^^^^^^^^^^^^^^^^^^^
+1.2.3 From github
+^^^^^^^^^^^^^^^^^
 
 Clone the project repository:
 
 .. code:: bash
 
-    git clone https://bitbucket.org/jason_delaat/pymonad.git
+    git clone https://github.com/jasondelaat/pymonad.git
 
 Then from the project directory run ``setup.py`` as for the manual
 build instructions above.
@@ -95,6 +97,11 @@ The following example imports the ``tools`` module and uses the
 
 1.2.5 Next Steps
 ^^^^^^^^^^^^^^^^
+
+The PyMonad documentation is a work in progress. For tutorials,
+how-to, and more head over to the `PyMonad Documentation Project <https://jasondelaat.github.io/pymonad_docs/>`_.
+If you'd like to contribute visit the documentation repository
+`here <https://github.com/jasondelaat/pymonad_docs>`_.
 
 2 Running the tests
 -------------------
@@ -134,7 +141,7 @@ the existing code for examples of errors which can be disabled.
 3 Authors
 ---------
 
-**Jason DeLaat** - *Primary Author\\/Maintainer* - `https://bitbucket.org/jason_delaat/ <https://bitbucket.org/jason_delaat/>`_
+**Jason DeLaat** - *Primary Author/Maintainer* - `https://github.com/jasondelaat/pymonad <https://github.com/jasondelaat/pymonad>`_
 
 4 License
 ---------
