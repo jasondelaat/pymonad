@@ -88,6 +88,14 @@ class MonadTests:
             k_compose(inc, k_compose(dec, dbl))(0)
         )
 
+    def test_join(self):
+        inc = k_inc(self._class)
+        self.assertEqual(
+            self._class.insert(1).map(inc).join(),
+            self._class.insert(1).bind(inc)
+        )
+        
+
 class FunctorTests:
     def setUp(self):
         raise NotImplementedError('FunctorTests: You need to set self._class to the monad class being tested.')

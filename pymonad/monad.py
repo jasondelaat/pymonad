@@ -12,6 +12,8 @@ insert. See the documentation for those methods for more information on
 how to implement them properly.
 """
 
+# pytype complains if Any isn't imported even though it's not used anywhere.
+from typing import Any # pylint: disable=unused-import
 from typing import Callable, Generic, TypeVar, Union
 
 S = TypeVar('S') # pylint: disable=invalid-name
@@ -113,6 +115,10 @@ class Monad(Generic[T]):
     def bind(self: 'Monad[S]', kleisli_function: Callable[[S], 'Monad[T]']) -> 'Monad[T]':
         """ Applies 'function' to the result of a previous monadic calculation. """
         raise NotImplementedError
+
+    def join(self: 'Monad[Monad[T]]') -> 'Monad[T]':
+        """ Unpacks a nested monad instance one level. """
+        return self.bind(lambda inner_monad: inner_monad)
 
     def map(self: 'Monad[S]', function: Callable[[S], T]) -> 'Monad[T]':
         """ Applies 'function' to the contents of the functor and returns a new functor value. """
