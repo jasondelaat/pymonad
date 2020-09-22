@@ -8,3 +8,4 @@ install-env
 MANIFEST
 dist
 .pytype
+PyMonad.egg-info/*
