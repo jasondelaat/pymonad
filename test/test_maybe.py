@@ -19,17 +19,13 @@ class MaybeTests(unittest.TestCase):
     def test_insert(self):
         self.assertEqual(Maybe.insert(9), Just(9))
 
-    def test_exceptions_return_nothing_normal_functions(self):
-        self.assertEqual(
-            Maybe.insert(1).then(lambda x: x / 0),
-            Nothing
-        )
+    def test_exceptions_do_not_return_nothing_normal_functions(self):
+        with self.assertRaises(ZeroDivisionError):
+            Maybe.insert(1).then(lambda x: x / 0)
 
-    def test_exceptions_return_nothing_kleisli_functions(self):
-        self.assertEqual(
+    def test_exceptions_do_not_return_nothing_kleisli_functions(self):
+        with self.assertRaises(ZeroDivisionError):
             Maybe.insert(1).then(lambda x: Just(x / 0)),
-            Nothing
-        )
 
 class OptionTests(unittest.TestCase):
     def test_repr_Some(self):

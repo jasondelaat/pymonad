@@ -47,10 +47,7 @@ class Maybe(pymonad.monad.Monad, Generic[T]):
         if self.monoid is False: #pylint: disable=no-else-return
             return self
         else:
-            try:
-                return kleisli_function(self.value)
-            except: # pylint: disable=bare-except
-                return Nothing
+            return kleisli_function(self.value)
 
     def is_just(self) -> bool:
         """ Returns True if the monad instance was created with the 'Just' function. """
@@ -65,10 +62,7 @@ class Maybe(pymonad.monad.Monad, Generic[T]):
         if self.is_nothing(): #pylint: disable=no-else-return
             return self
         else:
-            try:
-                return self.__class__(function(self.value), True) # pytype: disable=not-callable
-            except: # pylint: disable=bare-except
-                return Nothing
+            return self.__class__(function(self.value), True) # pytype: disable=not-callable
 
     def __eq__(self, other):
         """ Checks equality of Maybe objects.
