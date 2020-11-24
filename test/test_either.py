@@ -29,6 +29,18 @@ class EitherTests(unittest.TestCase):
             str(Left(ZeroDivisionError('division by zero')))
         )
 
+    def test_right_binding_with_pipe_operator(self):
+        self.assertEqual(
+            Right(1) >> (lambda x: x+1),
+            2 
+        )
+
+    def test_left_binding_with_pipe_operator(self):
+        self.assertEqual(
+            Left(1) >> (lambda x: x+1),
+            Left(1) 
+        )
+
 class ErrorTests(unittest.TestCase):
     def test_repr(self):
         self.assertEqual(str(Result(9)), 'Result: 9')
@@ -73,6 +85,7 @@ class EitherMonad(common_tests.MonadTests, unittest.TestCase):
             Left('').bind(Either.insert),
             Left('')
         )
+    
 
 class EitherThen(common_tests.ThenTests, unittest.TestCase):
     def setUp(self):

@@ -92,6 +92,10 @@ class Either(pymonad.monad.Monad, Generic[M, T]):
     def __repr__(self):
         return f'Right {self.value}' if self.is_right() else f'Left {self.monoid[0]}'
 
+    def __rshift__(self, kleisli_function: Callable[[S], 'Either[M, T]']) -> 'Either[M,T]':
+        """ Pipe operator for Either that utilises Bind. See Monad.bind """
+        return self.bind(kleisli_function)
+
 def Left(value: M) -> Either[M, Any]: # pylint: disable=invalid-name
     """ Creates a value of the first possible type in the Either monad. """
     return Either(None, (value, False))
