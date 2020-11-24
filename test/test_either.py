@@ -29,6 +29,12 @@ class EitherTests(unittest.TestCase):
             str(Left(ZeroDivisionError('division by zero')))
         )
 
+    def test_either_extraction_with_Left_value(self):
+        self.assertEqual(Left(TypeError()).either(lambda e: 'Left', lambda r: 'Right'), 'Left')
+
+    def test_either_extraction_with_Right_value(self):
+        self.assertEqual(Right(1).either(lambda e: 'Left', lambda r: 'Right'), 'Right')
+
 class ErrorTests(unittest.TestCase):
     def test_repr(self):
         self.assertEqual(str(Result(9)), 'Result: 9')
@@ -37,6 +43,12 @@ class ErrorTests(unittest.TestCase):
     def test_insert(self):
         self.assertEqual(Error.insert(1), Result(1))
         self.assertEqual(str(Error.insert(1)), 'Result: 1')
+
+    def test_either_extraction_with_Left_value(self):
+        self.assertEqual(Error(TypeError()).either(lambda e: 'Left', lambda r: 'Right'), 'Left')
+
+    def test_either_extraction_with_Right_value(self):
+        self.assertEqual(Result(1).either(lambda e: 'Left', lambda r: 'Right'), 'Right')
 
 class EitherFunctor(common_tests.FunctorTests, unittest.TestCase):
     def setUp(self):

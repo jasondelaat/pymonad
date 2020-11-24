@@ -61,6 +61,38 @@ class Either(pymonad.monad.Monad, Generic[M, T]):
             except Exception as e: # pylint: disable=invalid-name, broad-except
                 return self.__class__(None, (e, False))
 
+    def either(
+            self: 'Either[M, S]', left_function: Callable[[M], T], right_function: Callable[[S], T]
+    ) -> T:
+        """Extracts a bare value from an Either object.
+
+        'either' takes two functions. If the Either object is a 'Left'
+        then the first (left) function is called with the Left value
+        as its argument.  Otherwise the second (right) function is
+        called with the Right value as its argument.
+
+        Example:
+          e = (Either.insert(1)
+               .then(add(7))
+               .then(div(0))  # Returns a Left with a ZeroDivisionError
+               .then(mul(5))
+               .either(lambda e: 0, lambda x: x) # ignore the error and return 0
+               ) # 'e' takes the value 0
+
+        Args:
+          left_function: a function from M to T where M is the type
+            contained by Left values.
+          right_function: a function from S to T where S is the type
+            contained in by Right values.
+
+        Result:
+          A bare (non-monadic) value of type T.
+        """
+        if self.monoid[1]: # pylint: disable=no-else-return
+            return right_function(self.value)
+        else:
+            return left_function(self.monoid[0])
+
     def is_left(self) -> bool:
         """ Returns True if this Either instance was created with the 'Left' function. """
         return not self.monoid[1]
