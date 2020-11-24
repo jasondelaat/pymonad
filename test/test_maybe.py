@@ -27,6 +27,12 @@ class MaybeTests(unittest.TestCase):
         with self.assertRaises(ZeroDivisionError):
             Maybe.insert(1).then(lambda x: Just(x / 0)),
 
+    def test_maybe_method_with_Nothing_value(self):
+        self.assertEqual(Nothing.maybe('a', lambda i: str(i)), 'a')
+
+    def test_maybe_method_with_Just_value(self):
+        self.assertEqual(Just(1).maybe('a', lambda i: str(i)), '1')
+
 class OptionTests(unittest.TestCase):
     def test_repr_Some(self):
         self.assertEqual(str(Some(9)), 'Some 9')
@@ -36,6 +42,12 @@ class OptionTests(unittest.TestCase):
 
     def test_insert_repr(self):
         self.assertEqual(str(Option.insert(9)), 'Some 9')
+
+    def test_option_method_with_Nothing_value(self):
+        self.assertEqual(Nothing.option('a', lambda i: str(i)), 'a')
+
+    def test_option_method_with_Just_value(self):
+        self.assertEqual(Some(1).option('a', lambda i: str(i)), '1')
 
 class MaybeFunctor(common_tests.FunctorTests, unittest.TestCase):
     def setUp(self):

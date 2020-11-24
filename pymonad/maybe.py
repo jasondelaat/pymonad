@@ -64,6 +64,38 @@ class Maybe(pymonad.monad.Monad, Generic[T]):
         else:
             return self.__class__(function(self.value), True) # pytype: disable=not-callable
 
+    def maybe(self: 'Maybe[S]', default_value: T, extraction_function: Callable[[S], T]) -> T:
+        """Extracts a bare value from a Maybe object.
+
+        'maybe' takes a default value and a function. If the Maybe
+        object is Nothing then the default value is returned,
+        otherwise the result of running the function on the contained
+        value is returned.
+
+        Example 1:
+          m = (Maybe.insert(1)
+               .then(add(7))
+               .then(div(0))  # Returns a Nothing value
+               .then(mul(5))
+               .maybe(0, lambda x: x)
+               ) # 'm' takes the value 0
+
+        Args:
+          default_value: a value (of type T) to be returned if the
+            Maybe object is Nothing.
+          extraction_function: a function from type S to type T where
+            S is the type of the value contained in the Maybe object.
+
+        Result:
+          A bare (non-monadic) value of type T.
+        """
+        if self.monoid: # pylint: disable=no-else-return
+            return extraction_function(self.value)
+        else:
+            return default_value
+
+    option = maybe
+
     def __eq__(self, other):
         """ Checks equality of Maybe objects.
 
