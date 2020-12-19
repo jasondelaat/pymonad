@@ -9,7 +9,7 @@ setuptools.setup(
     author='Jason DeLaat',
     author_email='jason.develops@gmail.com',
     packages=setuptools.find_packages(),
-    url='https://bitbucket.org/jason_delaat/pymonad',
+    url='https://github.com/jasondelaat/pymonad',
     license='BSD-3-Clause',
     description='Data structures and utilities for monadic style functional programming.',
     long_description= long_description,
