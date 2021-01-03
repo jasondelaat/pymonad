@@ -20,7 +20,7 @@ def IO(io_function: Callable[[], T]) -> _IO[T]: # pylint: disable=invalid-name
     Returns:
       An instance of the IO monad.
     """
-    return _IO(lambda: io_function, None)
+    return _IO(io_function, None)
 
 IO.apply = _IO.apply
 IO.insert = _IO.insert
