@@ -96,6 +96,181 @@ how-to, and more head over to the `PyMonad Documentation Project <https://jasond
 If you'd like to contribute visit the documentation repository
 `here <https://github.com/jasondelaat/pymonad_docs>`_.
 
+1.3 Upgrading from PyMonad 1.3
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you've used the 1.x versions of PyMonad you'll notice that
+there are a few differences:
+
+1.3.1 Curried functions
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Currying functions in PyMonad version 1.x wrapped a function in
+an instance of the Reader monad. This is no longer the case and
+currying simply produces a new function as one might expect. 
+
+The signature of ``curry`` has changed slightly. The new ``curry``
+takes two arguments: the number of arguments which need to be
+curried and the function.
+
+.. code:: python
+
+    from pymonad.tools import curry
+
+    def add(x, y):
+        return x + y
+
+    curried_add = curry(2, add)
+    # add = curry(2, add) # If you don't need access to the uncurried version.
+
+``curry`` is itself a curried function so it can be used more
+concisely as a decorator.
+
+.. code:: python
+
+    from pymonad.tools import curry
+
+    @curry(2)
+    def add(x, y):
+        return x + y
+
+1.3.2 Operators
+^^^^^^^^^^^^^^^
+
+Version 2 of PyMonad discourages the use of operators (>>, \\\*, and
+&) used in version 1 so old code which uses them will
+break. Operators have been removed from the default monad
+implementation but are still available for users that still wish
+to use them in the ``operators`` package. To use operators:
+
+.. code:: python
+
+    # Instead of this:
+    # import pymonad.maybe
+
+    # Do this:
+    import pymonad.operators.maybe
+
+While it's unlikely operators will be removed entirely, it is
+strongly suggested that users write code that doesn't require
+them.
+
+1.3.3 Renamed Methods
+^^^^^^^^^^^^^^^^^^^^^
+
+The ``fmap`` method has been renamed to simply ``map`` and ``unit`` is now called ``insert``.
+
+.. code:: python
+
+    from pymonad.maybe import Maybe
+
+    def add2(x):
+        return x + 2
+
+    m = (Maybe.insert(1)
+         .map(add2)
+    )
+
+    print(m) # Just 3
+
+1.3.4 Applicative Syntax
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Previously applicative syntax used the ``&`` operator or the ``amap``
+method. ``amap`` still exists but there's now another way to use
+applicatives: ``apply().to_arguments()``
+
+.. code:: python
+
+    from pymonad.tools import curry
+    from pymonad.maybe import Maybe, Just
+
+    @curry(2)
+    def add(x, y):
+        return x + y
+
+    a = Just(1)
+    b = Just(2)
+
+    c  = Maybe.apply(add).to_arguments(a, b)
+    print(c) # Just 3
+
+If the function passed to ``apply`` accepts multiple arguments then
+it *must* be a curried function.
+
+1.3.5 New ``then`` method
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``then`` method combines the functionality of both ``map`` and
+``bind``. It first tries to ``bind`` the function passed to it and,
+if that doesn't work, tries ``map`` instead. It will be slightly
+less efficient than using ``map`` and ``bind`` directly but frees
+users from having to worry about specifically which functions are
+being used where.
+
+.. code:: python
+
+    from pymonad.tools import curry
+    from pymonad.maybe import Maybe, Just, Nothing
+
+    @curry(2)
+    def add_2(x, y):
+        return x + y
+
+    @curry(2)
+    def div(y, x):
+        if y == 0:
+            return Nothing
+        else:
+            return Just(x / y)
+
+    m = (Maybe.insert(2)
+         .then(add(2)) # Uses map
+         .then(div(4)) # Uses bind
+    )
+
+    print(m) # Just 1.0
+
+1.3.6 Getting values out of ``Maybe`` and ``Either``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Previously, if you need to get a value out of a ``Maybe`` or an
+``Either`` after a series of calculations you would have to access
+the ``.value`` property directly. By the very nature of these two
+monads, ``.value`` may not contain valid data and checking whether
+the data is valid or not is the problem these monads are supposed
+to solve. As of PyMonad 2.3.0 there are methods -- ``maybe`` and
+``either`` -- for properly extracting values from these
+monads.
+
+Given a ``Maybe`` value ``m``, the ``maybe`` method takes a default
+value, which will be returned if ``m`` is ``Nothing``, and a function
+which will be applied to the value inside of a ``Just``.
+
+.. code:: python
+
+    from pymonad.maybe import Just, Nothing
+
+    a = Just(2)
+    b = Nothing
+
+    print(a.maybe(0, lambda x: x)) # 2
+    print(b.maybe(0, lambda x: x)) # 0
+
+The ``either`` method works essentially the same way but takes two
+functions as arguments. The first is applied if the value is a
+``Left`` value and the second if it's a ``Right``.
+
+.. code:: python
+
+    from pymonad.either import Left, Right
+
+    a = Right(2)
+    b = Left('Invalid')
+
+    print(a.either(lambda x: f'Sorry, {x}', lambda x: x)) # 2
+    print(b.either(lambda x: f'Sorry, {x}', lambda x: x)) # Sorry, Invalid
+
 2 Running the tests
 -------------------
 
