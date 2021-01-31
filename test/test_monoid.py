@@ -7,9 +7,6 @@ import unittest
 import pymonad.monoid as monoid
 
 class MZero_Tests(unittest.TestCase):
-    def test_class_and_object_are_the_same(self):
-        self.assertEqual(monoid.IDENTITY, monoid.IDENTITY())
-
     def test_left_identity(self):
         self.assertEqual(monoid.IDENTITY + 10, 10)
 
