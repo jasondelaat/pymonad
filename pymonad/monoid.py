@@ -46,13 +46,7 @@ class Monoid(Generic[T]):
         return self.addition_operation(other)
 
     def __eq__(self: Union['IDENTITY', 'Monoid[T]'], other: Union['IDENTITY', 'Monoid[T]']) -> bool:
-        try:
-            if self is IDENTITY and other is IDENTITY: # pylint: disable=no-else-return
-                return True
-            else:
-                return self.value == other.value
-        except AttributeError:
-            return False
+        return self.value == other.value
 
     def addition_operation(self: MonoidT, other: MonoidT) -> MonoidT:
         raise NotImplementedError
@@ -67,35 +61,17 @@ class Monoid(Generic[T]):
         """
         raise NotImplementedError
 
-class _MonoidIdentityMeta(type, Monoid):
-    @staticmethod
-    def identity_element():
-        raise AttributeError('Monoid IDENTITY has no identity_element.')
-
-    def __add__(cls, other):
+class _MonoidIdentity:
+    def __add__(self, other):
         return other
 
-    def __radd__(cls, other):
+    def __radd__(self, other):
         return other
 
-    def __repr__(cls):
+    def __repr__(self):
         return 'IDENTITY'
 
-class IDENTITY(metaclass=_MonoidIdentityMeta): # pylint: disable=too-few-public-methods
-    """ A generic zero/identity element for monoids.
-
-    The IDENTITY class acts as a constant/singleton with monoid addition
-    implemented on the class itself to always return the other
-    element. It is not actually possible to create an instance of IDENTITY
-    as calling the constructor simply returns the class itself.
-
-    Example:
-      IDENTITY == IDENTITY() # True.
-      IDENTITY + 10      # 10
-      'hello' + IDENTITY # 'hello'
-    """
-    def __new__(cls):
-        return IDENTITY
+IDENTITY = _MonoidIdentity()
 
 def mconcat(monoid_list: List[MonoidT]) -> MonoidT:
     """
