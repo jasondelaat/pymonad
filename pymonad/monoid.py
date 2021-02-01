@@ -43,7 +43,7 @@ class Monoid(Generic[T]):
         self.value = value
 
     def __add__(self: MonoidT, other: MonoidT) -> MonoidT:
-        raise NotImplementedError
+        return self.addition_operation(other)
 
     def __eq__(self: Union['IDENTITY', 'Monoid[T]'], other: Union['IDENTITY', 'Monoid[T]']) -> bool:
         try:
@@ -53,6 +53,9 @@ class Monoid(Generic[T]):
                 return self.value == other.value
         except AttributeError:
             return False
+
+    def addition_operation(self: MonoidT, other: MonoidT) -> MonoidT:
+        raise NotImplementedError
 
     @staticmethod
     def identity_element() -> 'Monoid[Any]':
