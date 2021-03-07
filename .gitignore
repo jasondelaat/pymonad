@@ -9,3 +9,5 @@ MANIFEST
 dist
 .pytype
 PyMonad.egg-info/*
+Pipfile*
+.chglog/*
