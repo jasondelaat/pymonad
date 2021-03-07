@@ -51,8 +51,9 @@ class _List(pymonad.monad.Monad, pymonad.monoid.Monoid, Generic[T]):
 
     def join(self: '_List[_List[T]]') -> '_List[T]':
         """ Flattens a nested ListMonad instance one level. """
-        return self.__class__([element for lists in self for element in lists],
-                              None) # pytype: disable=not-callable
+        return self.__class__( # pytype: disable=not-callable
+            [element for lists in self for element in lists], None
+        )
 
     def map(self: '_List[S]', function: Callable[[S], T]) -> '_List[T]':
         return self.__class__([function(x) for x in self], None)
@@ -65,7 +66,7 @@ class _List(pymonad.monad.Monad, pymonad.monoid.Monoid, Generic[T]):
         except TypeError:
             return self.map(function)
 
-    def __add__(self, other):
+    def addition_operation(self, other):
         if other is pymonad.monoid.IDENTITY: # pylint: disable=no-else-return
             return self
         else:

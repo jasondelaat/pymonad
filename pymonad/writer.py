@@ -30,25 +30,24 @@ from typing import Callable, Generic, TypeVar
 import pymonad.monad
 import pymonad.monoid
 
-M = TypeVar('M', bound=pymonad.monoid.MonoidT) # pylint: disable=invalid-name
 S = TypeVar('S') # pylint: disable=invalid-name
 T = TypeVar('T') # pylint: disable=invalid-name
 
-class Writer(pymonad.monad.Monad, Generic[M, T]):
+class Writer(pymonad.monad.Monad, Generic[T]):
     """ The Writer monad class. """
     @classmethod
-    def insert(cls, value: T) -> 'Writer[M, T]':
+    def insert(cls, value: T) -> 'Writer[T]':
         """ See Monad.insert. """
         return cls(value, pymonad.monoid.IDENTITY)
 
     def bind(
-            self: 'Writer[M, S]', kleisli_function: Callable[[S], 'Writer[M, T]']
-    ) -> 'Writer[M, T]':
+            self: 'Writer[S]', kleisli_function: Callable[[S], 'Writer[T]']
+    ) -> 'Writer[T]':
         """ See Monad.bind. """
         result = kleisli_function(self.value)
         return self.__class__(result.value, self.monoid + result.monoid)
 
-    def map(self: 'Writer[M, S]', function: Callable[[S], T]) -> 'Writer[M, T]':
+    def map(self: 'Writer[S]', function: Callable[[S], T]) -> 'Writer[T]':
         """ See Monad.map. """
         return self.__class__(function(self.value), self.monoid)
 

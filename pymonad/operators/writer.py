@@ -9,8 +9,7 @@ import pymonad.monad
 import pymonad.operators.operators
 import pymonad.writer
 
-M = TypeVar('M') # pylint: disable=invalid-name
 T = TypeVar('T') # pylint: disable=invalid-name
 
-class Writer(pymonad.operators.operators.MonadOperators, pymonad.writer.Writer[M, T]): # pylint: disable=abstract-method
+class Writer(pymonad.operators.operators.MonadOperators, pymonad.writer.Writer[T]): # pylint: disable=abstract-method
     """ See pymonad.operators.operators and pymonad.writer. """

@@ -80,6 +80,9 @@ class Monoid(Generic[T]):
         raise NotImplementedError
 
 class _MonoidIdentity:
+    def __init__(self):
+        self.value = None
+
     def __add__(self, other):
         return other
 
