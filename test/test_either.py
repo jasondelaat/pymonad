@@ -17,18 +17,6 @@ class EitherTests(unittest.TestCase):
     def test_insert(self):
         self.assertEqual(Either.insert(1), Right(1))
 
-    def test_exceptions_wrapped_in_left_normal_function(self):
-        self.assertEqual(
-            str(Either.insert(1).then(lambda x: x / 0)),
-            str(Left(ZeroDivisionError('division by zero')))
-        )
-
-    def test_exceptions_wrapped_in_left_kleisli_function(self):
-        self.assertEqual(
-            str(Either.insert(1).then(lambda x: Right(x / 0))),
-            str(Left(ZeroDivisionError('division by zero')))
-        )
-
     def test_either_extraction_with_Left_value(self):
         self.assertEqual(Left(TypeError()).either(lambda e: 'Left', lambda r: 'Right'), 'Left')
 

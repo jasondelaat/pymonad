@@ -56,10 +56,7 @@ class Either(pymonad.monad.Monad, Generic[M, T]):
         if self.is_left(): # pylint: disable=no-else-return
             return self
         else:
-            try:
-                return kleisli_function(self.value)
-            except Exception as e: # pylint: disable=invalid-name, broad-except
-                return self.__class__(None, (e, False))
+            return kleisli_function(self.value)
 
     def either(
             self: 'Either[M, S]', left_function: Callable[[M], T], right_function: Callable[[S], T]
@@ -106,10 +103,7 @@ class Either(pymonad.monad.Monad, Generic[M, T]):
         if self.is_left(): # pylint: disable=no-else-return
             return self
         else:
-            try:
-                return self.__class__(function(self.value), (None, True))
-            except Exception as e: # pylint: disable=invalid-name, broad-except
-                return self.__class__(None, (e, False))
+            return self.__class__(function(self.value), (None, True))
 
     def __eq__(self, other):
         """ Checks equality of Maybe objects.
