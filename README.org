@@ -185,7 +185,7 @@ on your local machine for development and testing purposes.
        from pymonad.maybe import Maybe, Just, Nothing
 
        @curry(2)
-       def add_2(x, y):
+       def add(x, y):
            return x + y
 
        @curry(2)
