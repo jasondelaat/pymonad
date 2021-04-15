@@ -6,9 +6,9 @@ import unittest
 
 import common_tests
 import pymonad
-from pymonad.state import _State
+from pymonad.state import State
 
-class EqState(_State):
+class EqState(State):
     def __eq__(self, other):
         try:
             return self.run(0) == other.run(0)
