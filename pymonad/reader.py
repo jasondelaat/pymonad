@@ -22,10 +22,11 @@ def _bind(function_f, function_g, read_only):
 
 @pymonad.tools.curry(3)
 def _bind_or_map(function_f, function_g, read_only):
+    return_value = _map(function_f, function_g, read_only)
     try:
-        return _bind(function_f, function_g, read_only)
-    except TypeError:
-        return _map(function_f, function_g, read_only)
+        return return_value(read_only)
+    except (TypeError, AttributeError):
+        return return_value
 
 @pymonad.tools.curry(3)
 def _map(function_f, function_g, read_only):
