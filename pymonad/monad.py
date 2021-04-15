@@ -149,11 +149,8 @@ class Monad(Generic[T]):
         Returns:
           A monad value of the same type as 'self'
         """
+        result = self.map(function)
         try:
-            result = self.bind(function)
-            if isinstance(result, Monad): # pylint: disable=no-else-return
-                return result
-            else:
-                return self.map(function)
-        except AttributeError:
-            return self.map(function)
+            return result.join()
+        except (TypeError, AttributeError):
+            return result
