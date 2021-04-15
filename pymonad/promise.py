@@ -16,21 +16,25 @@ which allows for recovery from errors.
     from pymonad.tools import curry
 
     @curry(2)
+    def add(x, y):
+        return x + y
+
+    @curry(2)
     def div(y, x):
         return x / y
 
     async def long_id(x):
         await asyncio.sleep(1)
-        return await Promise(lambda resolve, reject: resolve(x))
+        return Promise(lambda resolve, reject: resolve(x))
 
     async def main():
         x = (Promise.insert(1)
-             .then(long_id))
+                .then(long_id))
         y = (Promise
-             .insert(2)
-             .then(long_id)
-             .then(div(0))            # Raises an error...
-             .catch(lambda error: 2)) # ...which is dealth with here.
+                .insert(2)
+                .then(long_id)
+                .then(div(0))            # Raises an error...
+                .catch(lambda error: 2)) # ...which is dealth with here.
         print(
             await Promise.apply(add)
             .to_arguments(x, y)
@@ -91,6 +95,7 @@ This program prints "<type 'IndexError'>" as its output.
 """
 from typing import Callable, Generic, TypeVar, Union
 
+import asyncio
 import pymonad.monad
 import pymonad.tools
 
@@ -127,11 +132,13 @@ class _Promise(pymonad.monad.Monad, Generic[T]):
 
     def bind(self: '_Promise[S]', kleisli_function: Callable[[S], '_Promise[T]']) -> '_Promise[T]':
         """ See Monad.bind. """
-        self._resolve = kleisli_function
-        async def _awaitable_bind(resolve, reject): # pylint: disable=unused-argument
-            value = await self
-            return resolve(await value)
-        return self.__class__(_awaitable_bind, None)
+        if asyncio.iscoroutinefunction(kleisli_function):
+            async def _bind(resolve, _):
+                return await resolve(await kleisli_function(await self))
+        else:
+            async def _bind(resolve, _):
+                return resolve(await kleisli_function(await self))
+        return self.__class__(_bind, None)
 
     def catch(self: '_Promise[T]', error_handler: Callable[[Exception], T]) -> '_Promise[T]':
         """ Allows users to handle errors caused earlier in the Promise chain.
@@ -161,23 +168,34 @@ class _Promise(pymonad.monad.Monad, Generic[T]):
 
     def map(self: '_Promise[S]', function: Callable[[S], T]) -> '_Promise[T]':
         """ See Monad.map. """
-        self._resolve = function
-        async def _(resolve, reject): # pylint: disable=unused-argument
-            value = await self
-            return resolve(value)
-        return self.__class__(_, None)
-
+        if asyncio.iscoroutinefunction(function):
+            async def _map(resolve, _):
+                return await resolve(function(await self))
+        else:
+            async def _map(resolve, _):
+                return resolve(function(await self))
+        return self.__class__(_map, None)
 
     def then(
             self: '_Promise[S]', function: Union[Callable[[S], T], Callable[[S], '_Promise[T]']]
     ) -> '_Promise[T]':
         """ See Monad.then. """
-        async def _awaitable_then(resolve, reject): # pylint: disable=unused-argument
-            try:
-                return resolve(await self.bind(function))
-            except TypeError:
-                return resolve(await self.map(function))
-        return self.__class__(_awaitable_then, None)
+        if asyncio.iscoroutinefunction(function):
+            async def _then(resolve, _):
+                result = await function(await self)
+                try:
+                    return resolve(await result)
+                except TypeError:
+                    return resolve(result)
+        else:
+            async def _then(resolve, _):
+                result = function(await self)
+                try:
+                    return resolve(await result)
+                except TypeError:
+                    return resolve(result)
+
+        return self.__class__(_then, None)
 
     def __await__(self):
         return self.value(self._resolve, _reject).__await__()
