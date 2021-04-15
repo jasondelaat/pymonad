@@ -241,6 +241,18 @@ on your local machine for development and testing purposes.
        print(b.either(lambda x: f'Sorry, {x}', lambda x: x)) # Sorry, Invalid
      #+end_src
      
+*** Note on efficiency in versions <2.3.5
+    In pymonad versions 2.3.4 and earlier, an error in the
+    implementation of ~then~, detailed [[https://github.com/jasondelaat/pymonad/issues/14][here]], meant that some monad
+    types executed ~then~ with exponential complexity. As of version
+    2.3.5 this has been corrected. All monad types now execute ~then~
+    in linear time. A similar problem occured with the ~map~ and
+    ~bind~ methods for the State monad which have also been fixed in
+    2.3.5
+    
+    If you're using an earlier version of pymonad upgrading to 2.3.5
+    is highly recommended.
+
 ** Running the tests
 *** Unit Tests
     These tests primarily ensure that the defined monads and monoids
