@@ -13,10 +13,11 @@ B = TypeVar('B') # pylint: disable=invalid-name
 
 def _bind_or_map(monad_value, function):
     def _internal():
+        result = function(monad_value.run())
         try:
-            return function(monad_value.run()).run()
+            return result.run()
         except AttributeError:
-            return function(monad_value.run())
+            return result
     return _internal
 
 class _IO(pymonad.monad.Monad, Generic[A]):
