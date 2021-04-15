@@ -5,7 +5,7 @@ with open('README.rst', 'r') as readme:
 
 setuptools.setup(
     name='PyMonad',
-    version='2.3.4',
+    version='2.3.5',
     author='Jason DeLaat',
     author_email='jason.develops@gmail.com',
     packages=setuptools.find_packages(),
