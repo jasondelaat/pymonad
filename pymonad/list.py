@@ -61,10 +61,11 @@ class _List(pymonad.monad.Monad, pymonad.monoid.Monoid, Generic[T]):
     def then(
             self: '_List[S]', function: Union[Callable[[S], T], Callable[[S], '_List[T]']]
     ) -> '_List[T]':
+        return_value = self.map(function)
         try:
-            return self.bind(function)
-        except TypeError:
-            return self.map(function)
+            return return_value.join()
+        except (TypeError, AttributeError):
+            return return_value
 
     def addition_operation(self, other):
         if other is pymonad.monoid.IDENTITY: # pylint: disable=no-else-return
