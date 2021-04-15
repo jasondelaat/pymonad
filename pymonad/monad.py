@@ -118,7 +118,12 @@ class Monad(Generic[T]):
 
     def join(self: 'Monad[Monad[T]]') -> 'Monad[T]':
         """ Unpacks a nested monad instance one level. """
-        return self.bind(lambda inner_monad: inner_monad)
+        def _join(value):
+            if isinstance(value, Monad): # pylint: disable=no-else-return
+                return value
+            else:
+                raise TypeError(f'Cannot join() \'{self}\'')
+        return self.bind(_join)
 
     def map(self: 'Monad[S]', function: Callable[[S], T]) -> 'Monad[T]':
         """ Applies 'function' to the contents of the functor and returns a new functor value. """
