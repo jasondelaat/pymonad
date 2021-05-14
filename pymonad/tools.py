@@ -127,3 +127,35 @@ def kleisli_compose(
       A new Kleisli function with type: a -> (c, m)
     """
     return lambda a: function_f(a).bind(function_g)
+
+@curry(3)
+def monad_from_none_or_value(
+        if_none: monad.Monad[T], if_value: Callable[[T], monad.Monad[T]], value: T
+) -> monad.Monad[T]:
+    """Creates a monad value from the given input.
+
+    'monad_from_none_or_value' is a curried function which attempts to
+    create a monad value from the given input and returns a default
+    monad value if 'value' is None.
+
+    Example:
+      option_builder = monad_from_none_or_value(Nothing, Some)
+      option_builder(None) # Nothing
+      option_builder(2)    # Some(2)
+
+    Args:
+      if_none: a monad value. This is the default value that will be
+               returned if 'value' is None
+      if_value: any function which takes a value and returns an monad
+                value. Typically a constructor like Just, Right, etc.
+      value: The value with which to attempt creating the monad
+             instance.
+
+    Returns:
+      An instance of one of the monad classes.
+
+    """
+    if value is None: #pylint: disable=no-else-return
+        return if_none
+    else:
+        return if_value(value)
