@@ -214,15 +214,15 @@ being used where.
     from pymonad.maybe import Maybe, Just, Nothing
 
     @curry(2)
-    def add_2(x, y):
+    def add(x, y):
         return x + y
 
     @curry(2)
     def div(y, x):
         if y == 0:
-            return Nothing
+    	return Nothing
         else:
-            return Just(x / y)
+    	return Just(x / y)
 
     m = (Maybe.insert(2)
          .then(add(2)) # Uses map
@@ -270,6 +270,20 @@ functions as arguments. The first is applied if the value is a
 
     print(a.either(lambda x: f'Sorry, {x}', lambda x: x)) # 2
     print(b.either(lambda x: f'Sorry, {x}', lambda x: x)) # Sorry, Invalid
+
+1.4 Note on efficiency in versions <2.3.5
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In pymonad versions 2.3.4 and earlier, an error in the
+implementation of ``then`` meant that some monad
+types executed ``then`` with exponential complexity. As of version
+2.3.5 this has been corrected. All monad types now execute ``then``
+in linear time. A similar problem occured with the ``map`` and
+``bind`` methods for the State monad which have also been fixed in
+2.3.5
+
+If you're using an earlier version of pymonad upgrading to 2.3.5
+is highly recommended.
 
 2 Running the tests
 -------------------
