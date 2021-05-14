@@ -1,4 +1,12 @@
 
+<a name="v2.4.0"></a>
+## [v2.4.0](https://github.com/jasondelaat/pymonad/compare/v2.3.5...v2.4.0) (2021-05-14)
+
+### Feat
+
+* Adds function pymonad.tools.monad_from_none_or_value
+
+
 <a name="v2.3.5"></a>
 ## [v2.3.5](https://github.com/jasondelaat/pymonad/compare/v2.3.4...v2.3.5) (2021-04-15)
 
