@@ -124,3 +124,30 @@ class PromiseThenTests(unittest.TestCase):
             _run(self._class.insert(0).then(inc)),
             _run(inc(0))
         )
+
+from pymonad.tools import async_func
+
+def my_func(x: int, y: int = 1, z: int = 1):
+    return (x + 2 * y) / z
+
+async_my_func = async_func(my_func)
+
+class PromiseAlgebraFunctions(unittest.TestCase):
+
+    def setUp(self):
+        self._class = _Promise
+
+    @staticmethod
+    async def add_one(x: int):
+        await asyncio.sleep((x % 10)/100)
+        return x + 1
+
+    def test_compose_promises(self):
+        self.assertEqual(
+            _run(async_my_func(
+                self._class.insert(1).map(self.add_one), z=self._class.insert(2)
+            ).map(self.add_one)), my_func(x=2, z=2) + 1
+        )
+
+
+

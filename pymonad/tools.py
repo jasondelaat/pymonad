@@ -4,9 +4,12 @@
 # --------------------------------------------------------
 """ The tools module contains useful functions that don't really belong anywhere else. """
 
-from typing import Any, Callable, List, TypeVar
+from typing import Any, Callable, List, TypeVar, Awaitable
 
+import asyncio
 import pymonad.monad as monad
+
+from pymonad.promise import Promise, _Promise
 
 R = TypeVar('R') # pylint: disable=invalid-name
 S = TypeVar('S') # pylint: disable=invalid-name
@@ -159,3 +162,65 @@ def monad_from_none_or_value(
         return if_none
     else:
         return if_value(value)
+
+
+
+def async_func(func: Callable) -> Callable:
+    """Transform simple function in async function using promises.
+
+    async_func is supposed to be used as a decorator for providing
+    seamless integration with asynchronous operations, by deferring
+    arguments and keyword arguments input to be scheduled asynchronously
+    into the event-loop. It also transform the output into a promise,
+    allowing for abstract computation.
+
+    Example:
+      @async_func
+      def add(x, y):
+          return x+y
+
+      x = (Promise.insert(1)
+                      .then(long_id))
+      y = (Promise
+              .insert(2)
+              .then(long_id)
+              .then(div(0))            # Raises an error...
+              .catch(lambda error: 2)) # ...which is dealth with here.
+
+      z = add(x, y)
+
+      # z is now a Promise object that can be further used into other
+      # operations, abstracting chain of computations
+
+      print( await z.map(long_id).catch(lambda error: 'Recovering...') )
+
+    Args:
+      func: a regular function with variable arguments args and keyword
+            arguments kwargs
+
+     Returns:
+      An asynchronous counterpart of the provided function, that
+      accepts both promise and/or regular values and  returns promises,
+      for asynchronous usage
+
+    """
+
+    async def getArgs(args):
+        return await asyncio.gather(
+            *[arg if isinstance(arg, Awaitable) else Promise.insert(arg) for arg in args]
+        )
+
+    async def getKwargs(kwargs):
+        kwargsTasks = [arg.map(lambda x: (ith, x)) if isinstance(arg, Awaitable) else Promise.insert((ith, arg))
+                       for ith, arg in kwargs.items()]
+        return dict(await asyncio.gather(*kwargsTasks))
+
+    async def async_wrap(*args, **kwargs):
+        (_args, _kwargs) = await asyncio.gather(getArgs(args), getKwargs(kwargs))
+
+        return func(*_args, **_kwargs)
+
+    def wrapper(*args, **kwargs):
+        return _Promise(lambda resolve, reject: async_wrap(*args, **kwargs), None)
+
+    return wrapper
