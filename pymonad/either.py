@@ -26,40 +26,50 @@ The 'insert' class method is a wrapper around the 'Right' function.
   Example:
     x = Either.insert(9) # Same as Right(9)
 """
-from typing import Any, Callable, Generic, TypeVar
+from __future__ import annotations
+from typing import cast, Any, Callable, Generic, Tuple, TypeVar
 
 import pymonad.monad
 
 M = TypeVar('M') # pylint: disable=invalid-name
+R = TypeVar('R') # pylint: disable=invalid-name
 S = TypeVar('S') # pylint: disable=invalid-name
 T = TypeVar('T') # pylint: disable=invalid-name
 
 class Either(pymonad.monad.Monad, Generic[M, T]):
     """ The Either monad class. """
+
+    def __init__(self, value: T, monoid: Tuple[M, bool]):
+        # We cannot call super().__init__ as the type information does not propagate
+        self.value = value
+        self.monoid = monoid
+
     @classmethod
-    def insert(cls, value: T) -> 'Either[Any, T]':
+    def insert(cls, value: T) -> Either[Any, T]:
         """ See Monad.insert """
         return cls(value, (None, True))
 
-    def amap(self: 'Either[M, Callable[[S], T]]', monad_value: 'Either[M, S]') -> 'Either[M, T]':
+    def amap(
+        self: Either[M, Callable[[S], R]], monad_value: Either[M, S]
+    ) -> Either[M, R]:
         if self.is_left(): # pylint: disable=no-else-return
-            return self
+            return cast(Either[M, R], self)
         elif monad_value.is_left(): # pylint: disable=no-else-return
-            return monad_value
+            return cast(Either[M, R], monad_value)
         else:
-            return self.__class__(self.value(monad_value.value), (None, True))
+            return cast(Either[M, R], self).__class__(
+                self.value(monad_value.value), (None, True)
+            )
 
-    def bind(
-            self: 'Either[M, S]', kleisli_function: Callable[[S], 'Either[M, T]']
-    ) -> 'Either[M, T]':
+    def bind(self, kleisli_function: Callable[[T], Either[M, S]]) -> Either[M, S]:
         """ See Monad.bind """
         if self.is_left(): # pylint: disable=no-else-return
-            return self
+            return cast(Either[M, S], self)
         else:
             return kleisli_function(self.value)
 
     def either(
-            self: 'Either[M, S]', left_function: Callable[[M], T], right_function: Callable[[S], T]
+            self: Either[M, S], left_function: Callable[[M], T], right_function: Callable[[S], T]
     ) -> T:
         """Extracts a bare value from an Either object.
 
@@ -98,12 +108,12 @@ class Either(pymonad.monad.Monad, Generic[M, T]):
         """ Returns True if this Either instance was created with the 'Right' function. """
         return self.monoid[1]
 
-    def map(self: 'Either[M, S]', function: Callable[[S], T]) -> 'Either[M, T]':
+    def map(self, function: Callable[[T], S]) -> Either[M, S]:
         """ See Monad.map """
         if self.is_left(): # pylint: disable=no-else-return
-            return self
+            return cast(Either[M, S], self)
         else:
-            return self.__class__(function(self.value), (None, True))
+            return cast(Either[M, S], self).__class__(function(self.value), (None, True))
 
     def __eq__(self, other):
         """ Checks equality of Maybe objects.
