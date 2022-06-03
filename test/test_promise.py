@@ -125,7 +125,7 @@ class PromiseThenTests(unittest.TestCase):
             _run(inc(0))
         )
 
-from pymonad.tools import async_func
+from pymonad.promise import async_func
 
 def my_func(x: int, y: int = 1, z: int = 1):
     return (x + 2 * y) / z
