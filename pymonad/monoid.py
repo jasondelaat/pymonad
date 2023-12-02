@@ -24,14 +24,33 @@ Example:
     IDENTITY + 10      # 10
     'hello' + IDENTITY # 'hello'
 
+class Max(Monoid[int]):
+    def addition_operation(self, other: typing.Self) -> typing.Self:
+        return Max(max(self.value, other.value))
+
+    @staticmethod
+    def identity_element() -> "Max":
+        return _MinusInf()
+
+class _MinusInf(_MonoidIdentity, Max):
+    pass
+
 """
 
-from typing import Any, Generic, List, TypeVar, Union # pylint: disable=unused-import
+from typing import (
+    Any,
+    Generic,
+    List,
+    TypeVar,
+    Union,
+    Iterable,
+    Self,
+)  # pylint: disable=unused-import
 
-T = TypeVar('T') # pylint: disable=invalid-name
-MonoidT = Union['Monoid[T]', '_MonoidIdentity']
+T = TypeVar("T")  # pylint: disable=invalid-name
 
-class Monoid(Generic[T]):
+
+class Monoid[T]:
     """Base class for Monoid instances.
 
     To implement a monoid instance, create a sub-class of Monoid and
@@ -43,16 +62,16 @@ class Monoid(Generic[T]):
     def __init__(self, value: T) -> None:
         self.value = value
 
-    def __add__(self: MonoidT, other: MonoidT) -> MonoidT:
+    def __add__(self, other: Self) -> Self:
         return self.addition_operation(other)
 
     def __eq__(
-            self: Union['_MonoidIdentity', 'Monoid[T]'],
-            other: Union['_MonoidIdentity', 'Monoid[T]']
+        self: Union["_MonoidIdentity", "Monoid[T]"],
+        other: Union["_MonoidIdentity", "Monoid[T]"],
     ) -> bool:
         return self.value == other.value
 
-    def addition_operation(self: MonoidT, other: MonoidT) -> MonoidT:
+    def addition_operation(self: Self, other: Self) -> Self:
         """Defines how monoid values are added together.
 
         addition_operation() method is automatically called by
@@ -70,8 +89,8 @@ class Monoid(Generic[T]):
         """
         raise NotImplementedError
 
-    @staticmethod
-    def identity_element() -> 'Monoid[Any]':
+    @classmethod
+    def identity_element[a: "Monoid"](cls: type[a]) -> a:
         """Returns the identity value for the monoid type.
 
         This method must be overridden in subclasses of Monoid.
@@ -79,27 +98,35 @@ class Monoid(Generic[T]):
         """
         raise NotImplementedError
 
-class _MonoidIdentity:
+
+# class _MonoidIdentity[a : Monoid](a): #once Python Types has those features, this is what we want
+class _MonoidIdentity(Monoid):
     def __init__(self):
         self.value = None
 
-    def __add__(self, other):
+    def __add__(self, other: Self):
         return other
 
-    def __radd__(self, other):
+    def __radd__(self, other: Self):
         return other
 
     def __repr__(self):
-        return 'IDENTITY'
+        return "IDENTITY"
+
 
 IDENTITY = _MonoidIdentity()
 
-def mconcat(monoid_list: List[MonoidT]) -> MonoidT:
+
+# allows: mconcat([Monoida, Monoidb]) #Bad
+def mconcat[a: Monoid](monoid_list: Iterable[a]) -> a:
     """Takes a list of monoid values and reduces them to a single value
     by applying the '+' operation to all elements of the list.
-
+    Needs a non empty list, because Python doesn't allow calling classMethods on types yet
     """
-    result = monoid_list[0]
-    for value in monoid_list:
-        result += value
+    it = monoid_list.__iter__()
+
+    # a.identity()
+    result = it.__next__()
+    for value in it:
+        result = result + value
     return result
