@@ -24,17 +24,6 @@ Example:
     IDENTITY + 10      # 10
     'hello' + IDENTITY # 'hello'
 
-class Max(Monoid[int]):
-    def addition_operation(self, other: typing.Self) -> typing.Self:
-        return Max(max(self.value, other.value))
-
-    @staticmethod
-    def identity_element() -> "Max":
-        return _MinusInf()
-
-class _MinusInf(_MonoidIdentity, Max):
-    pass
-
 """
 
 from typing import (
@@ -59,10 +48,22 @@ class Monoid[T]:
 
     """
 
+    @classmethod
+    def wrap(cls, value: T) -> Self:
+        if value == None:
+            return cls.identity_element()
+        return cls(value)
+
     def __init__(self, value: T) -> None:
+        if value == None:
+            raise ValueError("None Objects not allowed in Monoids")
         self.value = value
 
-    def __add__(self, other: Self) -> Self:
+    def __add__(self, other: Self | T) -> Self:
+        if not isinstance(other, self.__class__):
+            if isinstance(other, Monoid):
+                raise ValueError("Incompatible Monoid")
+            return self.addition_operation(self.__class__(other))
         return self.addition_operation(other)
 
     def __eq__(
@@ -93,21 +94,41 @@ class Monoid[T]:
     def identity_element[a: "Monoid"](cls: type[a]) -> a:
         """Returns the identity value for the monoid type.
 
-        This method must be overridden in subclasses of Monoid.
+        This method must be overridden in subclasses of Monoid
 
         """
         raise NotImplementedError
 
 
 # class _MonoidIdentity[a : Monoid](a): #once Python Types has those features, this is what we want
-class _MonoidIdentity(Monoid):
+class _MonoidIdentity[T](Monoid[T]):
+    superclass = Monoid
+
     def __init__(self):
+        found = False
+        for i in type(self).__mro__:
+            if (
+                i != _MonoidIdentity
+                and i != self.__class__
+                and i != Monoid
+                and i != Generic
+                and i != object
+            ):
+                self.superclass = i
+                found = True
+                break
+        if not found and self.__class__ != _MonoidIdentity:
+            raise Exception("no superclass found")
         self.value = None
 
-    def __add__(self, other: Self):
+    def __add__(self: Self, other: Monoid[T] | T):
+        if not isinstance(other, Monoid):
+            return self.superclass(other)
         return other
 
     def __radd__(self, other: Self):
+        if not isinstance(other, Monoid):
+            return self.superclass(other)
         return other
 
     def __repr__(self):
@@ -117,11 +138,11 @@ class _MonoidIdentity(Monoid):
 IDENTITY = _MonoidIdentity()
 
 
-# allows: mconcat([Monoida, Monoidb]) #Bad
+# mconcat([Monoida, Monoidb]) not throws an error :nice
 def mconcat[a: Monoid](monoid_list: Iterable[a]) -> a:
     """Takes a list of monoid values and reduces them to a single value
     by applying the '+' operation to all elements of the list.
-    Needs a non empty list, because Python doesn't allow calling classMethods on types yet
+    Needs a non empty list, because Python doesn't allow calling on types
     """
     it = monoid_list.__iter__()
 
