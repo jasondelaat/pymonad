@@ -80,8 +80,9 @@ class _List(pymonad.monad.Monad, pymonad.monoid.Monoid, Generic[T]):
         result = self.value.__getitem__(index)
         try:
             if len(result) > 0:
-                result_list = self.__class__(result, None)
-            return result_list
+                return self.__class__(result, None)
+            else:
+                return result
         except TypeError:
             return result
 
