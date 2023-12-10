@@ -26,12 +26,20 @@ Example:
 
 """
 
-from typing import Any, Generic, List, TypeVar, Union # pylint: disable=unused-import
+from typing import (
+    Any,
+    Generic,
+    List,
+    TypeVar,
+    Union,
+    Iterable,
+    Self,
+)  # pylint: disable=unused-import
 
-T = TypeVar('T') # pylint: disable=invalid-name
-MonoidT = Union['Monoid[T]', '_MonoidIdentity']
+T = TypeVar("T")  # pylint: disable=invalid-name
 
-class Monoid(Generic[T]):
+
+class Monoid[T]:
     """Base class for Monoid instances.
 
     To implement a monoid instance, create a sub-class of Monoid and
@@ -40,19 +48,31 @@ class Monoid(Generic[T]):
 
     """
 
+    @classmethod
+    def wrap(cls, value: T) -> Self:
+        if value == None:
+            return cls.identity_element()
+        return cls(value)
+
     def __init__(self, value: T) -> None:
+        if value == None:
+            raise ValueError("None Objects not allowed in Monoids")
         self.value = value
 
-    def __add__(self: MonoidT, other: MonoidT) -> MonoidT:
+    def __add__(self, other: Self | T) -> Self:
+        if not isinstance(other, self.__class__):
+            if isinstance(other, Monoid):
+                raise ValueError("Incompatible Monoid")
+            return self.addition_operation(self.__class__(other))
         return self.addition_operation(other)
 
     def __eq__(
-            self: Union['_MonoidIdentity', 'Monoid[T]'],
-            other: Union['_MonoidIdentity', 'Monoid[T]']
+        self: Union["_MonoidIdentity", "Monoid[T]"],
+        other: Union["_MonoidIdentity", "Monoid[T]"],
     ) -> bool:
         return self.value == other.value
 
-    def addition_operation(self: MonoidT, other: MonoidT) -> MonoidT:
+    def addition_operation(self: Self, other: Self) -> Self:
         """Defines how monoid values are added together.
 
         addition_operation() method is automatically called by
@@ -70,36 +90,64 @@ class Monoid(Generic[T]):
         """
         raise NotImplementedError
 
-    @staticmethod
-    def identity_element() -> 'Monoid[Any]':
+    @classmethod
+    def identity_element[a: "Monoid"](cls: type[a]) -> a:
         """Returns the identity value for the monoid type.
 
-        This method must be overridden in subclasses of Monoid.
+        This method must be overridden in subclasses of Monoid
 
         """
         raise NotImplementedError
 
-class _MonoidIdentity:
+
+# class _MonoidIdentity[a : Monoid](a): #once Python Types has those features, this is what we want
+class _MonoidIdentity[T](Monoid[T]):
+    superclass = Monoid
+
     def __init__(self):
+        found = False
+        for i in type(self).__mro__:
+            if (
+                i != _MonoidIdentity
+                and i != self.__class__
+                and i != Monoid
+                and i != Generic
+                and i != object
+            ):
+                self.superclass = i
+                found = True
+                break
+        if not found and self.__class__ != _MonoidIdentity:
+            raise Exception("no superclass found")
         self.value = None
 
-    def __add__(self, other):
+    def __add__(self: Self, other: Monoid[T] | T):
+        if not isinstance(other, Monoid):
+            return self.superclass(other)
         return other
 
-    def __radd__(self, other):
+    def __radd__(self, other: Self):
+        if not isinstance(other, Monoid):
+            return self.superclass(other)
         return other
 
     def __repr__(self):
-        return 'IDENTITY'
+        return "IDENTITY"
+
 
 IDENTITY = _MonoidIdentity()
 
-def mconcat(monoid_list: List[MonoidT]) -> MonoidT:
+
+# mconcat([Monoida, Monoidb]) not throws an error :nice
+def mconcat[a: Monoid](monoid_list: Iterable[a]) -> a:
     """Takes a list of monoid values and reduces them to a single value
     by applying the '+' operation to all elements of the list.
-
+    Needs a non empty list, because Python doesn't allow calling on types
     """
-    result = monoid_list[0]
-    for value in monoid_list:
-        result += value
+    it = monoid_list.__iter__()
+
+    # a.identity()
+    result = it.__next__()
+    for value in it:
+        result = result + value
     return result
