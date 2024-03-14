@@ -34,7 +34,7 @@ M = TypeVar('M') # pylint: disable=invalid-name
 S = TypeVar('S') # pylint: disable=invalid-name
 T = TypeVar('T') # pylint: disable=invalid-name
 
-class Either(pymonad.monad.Monad, Generic[M, T]):
+class Either[M, T](pymonad.monad.Monad):
     """ The Either monad class. """
     @classmethod
     def insert(cls, value: T) -> 'Either[Any, T]':
@@ -49,9 +49,9 @@ class Either(pymonad.monad.Monad, Generic[M, T]):
         else:
             return self.__class__(self.value(monad_value.value), (None, True))
 
-    def bind(
-            self: 'Either[M, S]', kleisli_function: Callable[[S], 'Either[M, T]']
-    ) -> 'Either[M, T]':
+    def bind[Err, Val](
+            self: 'Either[M, S]', kleisli_function: Callable[[S], 'Either[Err, Val]']
+    ) -> 'Either[Err, Val]':
         """ See Monad.bind """
         if self.is_left(): # pylint: disable=no-else-return
             return self
